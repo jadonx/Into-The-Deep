@@ -1,19 +1,23 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
 import android.annotation.SuppressLint;
 
-import org.opencv.core.*;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Point;
+import org.opencv.core.RotatedRect;
+import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class SampleDetection extends OpenCvPipeline {
-
+    double angle;
+    Point center = new Point(0, 0);
     // Lower/Upper Color Bounds
     private final Scalar lowerRed1 = new Scalar(0, 150, 50);   // Red lower bound (hue wrap-around)
     private final Scalar upperRed1 = new Scalar(10, 255, 255); // Red upper bound
@@ -94,7 +98,8 @@ public class SampleDetection extends OpenCvPipeline {
                 }
 
                 // Calculate the angle
-                double angle = rect.angle;
+                angle = rect.angle;
+                center = rect.center;
                 if (rect.size.width < rect.size.height) {
                     angle += 90;
                 }
@@ -104,8 +109,11 @@ public class SampleDetection extends OpenCvPipeline {
 
                 // Display the angle on the frame
                 Imgproc.putText(input, "Angle: " + String.format("%.2f", angle), rect.center, Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(255, 255, 255), 2);
-                telemetry.addData("Angle", angle);
             }
         }
     }
+    public double returnAngle(){
+        return angle;
+    }
+    public Point returnCenter() { return center; }
 }

@@ -1,6 +1,8 @@
 package com.example.meepmeeptesting;
 
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
@@ -58,24 +60,31 @@ public class MeepMeepTesting {
                                 .splineToLinearHeading(new Pose2d(-52, -56, Math.toRadians(45)), Math.toRadians(180+45))
                                 .build());
         */
+        Action path1 = myBot.getDrive().actionBuilder(new Pose2d(-10, -65, Math.toRadians(270)))
+                .waitSeconds(1)
+                .setTangent(Math.toRadians(75))
+                .lineToY(-40)
+                .waitSeconds(1)
+                .setTangent(Math.toRadians(185))
+                .lineToXLinearHeading(-48, Math.toRadians(90))
+                .waitSeconds(1)
+                .setTangent(Math.toRadians(240))
+                .lineToYLinearHeading(-50, Math.toRadians(45))
+                .waitSeconds(1)
+                .setTangent(Math.toRadians(120))
+                .lineToYLinearHeading(-40, Math.toRadians(90))
+                .waitSeconds(1)
+                .setTangent(Math.toRadians(290))
+                .lineToYLinearHeading(-50, Math.toRadians(55))
+                .build();
+
+        Action path2 = myBot.getDrive().actionBuilder(new Pose2d(0, -65, Math.toRadians(90)))
+                .setTangent(Math.toRadians(90))
+                .lineToYLinearHeading(65, Math.toRadians(270))
+                .build();
 
 
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-10, -65, Math.toRadians(270)))
-                        .setTangent(Math.toRadians(75))
-                        .lineToY(-37)
-                        .waitSeconds(1)
-                        .setTangent(Math.toRadians(187))
-                        .lineToXLinearHeading(-48, Math.toRadians(90))
-                        .waitSeconds(1)
-                        .setTangent(Math.toRadians(240))
-                        .lineToYLinearHeading(-50, Math.toRadians(225))
-                        .waitSeconds(1)
-                        .setTangent(Math.toRadians(120))
-                        .lineToYLinearHeading(-40, Math.toRadians(90))
-                        .waitSeconds(1)
-                        .setTangent(Math.toRadians(290))
-                        .lineToYLinearHeading(-50, Math.toRadians(235))
-                        .build());
+        myBot.runAction(path2);
 
 
         /*

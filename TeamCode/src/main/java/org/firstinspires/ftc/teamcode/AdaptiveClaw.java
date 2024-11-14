@@ -1,72 +1,100 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.annotation.SuppressLint;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
-import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@TeleOp(name = "Adaptive Claw")
-public class AdaptiveClaw extends OpMode {
+import android.annotation.SuppressLint;
 
-    private OpenCvWebcam camera;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-    double angle = 0;
+import org.opencv.core.*;
+import org.opencv.imgproc.Imgproc;
+import org.openftc.easyopencv.OpenCvPipeline;
 
-    @Override
-    public void init() {
+import java.util.ArrayList;
+import java.util.List;
+
+@TeleOp(name = "adaptive claw")
+public class AdaptiveClaw extends LinearOpMode {
+    double cX = 0;
+    double cY = 0;
+    double width = 0;
+
+    private OpenCvCamera controlHubCam;  // Use OpenCvCamera class from FTC SDK
+    private static final int CAMERA_WIDTH = 640; // width  of wanted camera resolution
+    private static final int CAMERA_HEIGHT = 360; // height of wanted camera resolution
+
+    // Calculate the distance using the formula
+    public static final double objectWidthInRealWorldUnits = 3.75;  // Replace with the actual width of the object in real-world units
+    public static final double focalLength = 728;  // Replace with the focal length of the camera in pixels
+
+    SampleDetection pipeline = new SampleDetection();
+
+    double cameraAngle = pipeline.returnAngle();
+
+    public void runOpMode() {
+
+        initOpenCV();
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
+        FtcDashboard.getInstance().startCameraStream(controlHubCam, 30);
+
+
+        waitForStart();
+
+        while (opModeIsActive()) {
+            telemetry.addData("Coordinate", "(" + (int) cX + ", " + (int) cY + ")");
+            telemetry.addData("Angle", pipeline.returnAngle());
+            telemetry.update();
+
+            // The OpenCV pipeline automatically processes frames and handles detection
+        }
+
+        // Release resources
+        controlHubCam.stopStreaming();
+    }
+
+    private void initOpenCV() {
+
+        // Create an instance of the camera
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
-        // Change based on control hub config
-        camera = OpenCvCameraFactory.getInstance().createWebcam(
+        // Use OpenCvCameraFactory class from FTC SDK to create camera instance
+        controlHubCam = OpenCvCameraFactory.getInstance().createWebcam(
                 hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
-        camera.setPipeline(new SampleDetection());
+        controlHubCam.setPipeline(pipeline);
 
-        FtcDashboard dashboard = FtcDashboard.getInstance();
-        TelemetryPacket packet = new TelemetryPacket();
-
-        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
-            public void onOpened() {
-                camera.startStreaming(640, 320); // Resolution can be adjusted
-                dashboard.startCameraStream(camera, 0); // 0 = no delay
-
-                packet.put("Angle: ", angle);
-            }
-
-            @Override
-            public void onError(int errorCode) {
-                telemetry.addData("Error", "Camera failed to open");
-            }
-        });
-    }
-
-    @Override
-    public void loop() {
-
+        controlHubCam.openCameraDevice();
+        controlHubCam.startStreaming(CAMERA_WIDTH, CAMERA_HEIGHT, OpenCvCameraRotation.UPRIGHT);
     }
 
     class SampleDetection extends OpenCvPipeline {
-
+        double angle;
+        RotatedRect rect;
         // Lower/Upper Color Bounds
         private final Scalar lowerRed1 = new Scalar(0, 150, 50);   // Red lower bound (hue wrap-around)
         private final Scalar upperRed1 = new Scalar(10, 255, 255); // Red upper bound
@@ -137,7 +165,7 @@ public class AdaptiveClaw extends OpMode {
 
                 if (largestContour != null) {
                     // Find the minimum area bounding rectangle for the largest contour
-                    RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(largestContour.toArray()));
+                    rect = Imgproc.minAreaRect(new MatOfPoint2f(largestContour.toArray()));
 
                     // Draw the rectangle
                     Point[] rectPoints = new Point[4];
@@ -161,5 +189,21 @@ public class AdaptiveClaw extends OpMode {
                 }
             }
         }
+
+        public double returnAngle(){
+            return angle;
+        }
+
+        public Point getCenter(){
+            return rect.center;
+        }
+
     }
+    public double getAngle() {
+        return cameraAngle;
+    }
+
+
+
+
 }
