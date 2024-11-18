@@ -20,6 +20,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
 @Autonomous(name = "SampleAutonomous", group = "Autonomous")
@@ -29,6 +30,8 @@ public class SampleAutonomous extends LinearOpMode {
         private DcMotorEx arm, leftSlide, rightSlide;
         private CRServo leftClaw, rightClaw;
         private Servo claw;
+
+        private ElapsedTime runtime = new ElapsedTime();
 
         public ArmSlidesClaw(HardwareMap hardwareMap) {
             arm = hardwareMap.get(DcMotorEx.class, "arm");
@@ -49,7 +52,7 @@ public class SampleAutonomous extends LinearOpMode {
         }
 
         public class PlaceSpecimen implements Action {
-            private int targetArm = 1550;
+            private int targetArm = 1560;
             private int targetSlides = 1100;
 
             @Override
@@ -82,9 +85,9 @@ public class SampleAutonomous extends LinearOpMode {
                     telemetry.update();
                 }
 
-                claw.setPosition(0);
-
                 sleep(1000);
+
+                claw.setPosition(0);
 
                 targetSlides = 0;
 
@@ -122,9 +125,41 @@ public class SampleAutonomous extends LinearOpMode {
         }
 
         public class PlaceSample implements Action {
+            private int targetArm = 1650;
+            private int targetSlides = 2100;
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                claw.setPosition(1.0);
+
+                arm.setTargetPosition(targetArm);
+                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                arm.setPower(0.8);
+
+                while (Math.abs(arm.getCurrentPosition() - targetArm) > 20) {
+                    telemetry.addData("Current arm position ", arm.getCurrentPosition());
+                    telemetry.update();
+                }
+
+                sleep(1000);
+
+                leftSlide.setTargetPosition(-targetSlides);
+                rightSlide.setTargetPosition(targetSlides);
+
+                leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                leftSlide.setPower(0.8);
+                rightSlide.setPower(0.8);
+
+                while ((Math.abs(leftSlide.getCurrentPosition() + targetSlides) > 20) && (Math.abs(rightSlide.getCurrentPosition() - targetSlides) > 20)) {
+                    telemetry.addData("Left slide pos ", leftSlide.getCurrentPosition());
+                    telemetry.addData("Right slide pos ", rightSlide.getCurrentPosition());
+                    telemetry.update();
+                }
+
+                claw.setPosition(0);
+
                 return false;
             }
         }
@@ -133,20 +168,108 @@ public class SampleAutonomous extends LinearOpMode {
         }
 
         public class PickupSample implements Action {
+            private int targetArm = 400;
+            private int targetSlides = 320;
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                claw.setPosition(0);
+
+                arm.setTargetPosition(targetArm);
+                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                arm.setPower(0.8);
+
+                while (Math.abs(arm.getCurrentPosition() - targetArm) > 20) {
+                    telemetry.addData("Current arm position ", arm.getCurrentPosition());
+                    telemetry.update();
+                }
+
+                leftSlide.setTargetPosition(-targetSlides);
+                rightSlide.setTargetPosition(targetSlides);
+
+                leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                leftSlide.setPower(0.8);
+                rightSlide.setPower(0.8);
+
+                while ((Math.abs(leftSlide.getCurrentPosition() + targetSlides) > 20) && (Math.abs(rightSlide.getCurrentPosition() - targetSlides) > 20)) {
+                    telemetry.addData("Left slide pos ", leftSlide.getCurrentPosition());
+                    telemetry.addData("Right slide pos ", rightSlide.getCurrentPosition());
+                    telemetry.update();
+                }
+
+                leftClaw.setPower(1);
+                rightClaw.setPower(-1);
+
+                sleep(600);
+
+                leftClaw.setPower(0);
+                rightClaw.setPower(0);
+
+                sleep(750);
+
+                targetArm = 150;
+
+                arm.setTargetPosition(targetArm);
+                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                arm.setPower(0.8);
+
+                while (Math.abs(arm.getCurrentPosition() - targetArm) > 20) {
+                    telemetry.addData("Current arm position ", arm.getCurrentPosition());
+                    telemetry.update();
+                }
+
+                claw.setPosition(1); //closing claw
+
+                targetSlides = 0;
+
+                leftSlide.setTargetPosition(-targetSlides);
+                rightSlide.setTargetPosition(targetSlides);
+
+                leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                leftSlide.setPower(0.14);
+                rightSlide.setPower(0.14);
+
+                while ((Math.abs(leftSlide.getCurrentPosition() + targetSlides) > 20) && (Math.abs(rightSlide.getCurrentPosition() - targetSlides) > 20)) {
+                    telemetry.addData("Left slide pos ", leftSlide.getCurrentPosition());
+                    telemetry.addData("Right slide pos ", rightSlide.getCurrentPosition());
+                    telemetry.update();
+                }
+
+                leftClaw.setPower(-1);
+                rightClaw.setPower(1);
+
+                sleep(500);
+
+                leftClaw.setPower(0);
+                rightClaw.setPower(0);
+
                 return false;
             }
         }
         public Action pickupSample() {
             return new PickupSample();
         }
+
+        public class Claw implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                claw.setPosition(0);
+
+                return false;
+            }
+        }
+        public Action claw() {
+            return new Claw();
+        }
     }
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Pose2d initialPose = new Pose2d(-10, -65, Math.toRadians(270));
+        Pose2d initialPose = new Pose2d(-10, -62, Math.toRadians(270));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
 
         ArmSlidesClaw armslidesclaw = new ArmSlidesClaw(hardwareMap);
@@ -155,49 +278,51 @@ public class SampleAutonomous extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        TrajectoryActionBuilder path1 = drive.actionBuilder(initialPose)
+        Action path = drive.actionBuilder(new Pose2d(-10, -60, Math.toRadians(270)))
+                .setTangent(Math.toRadians(75))
+                .lineToY(-37)
+                .waitSeconds(3)
+                .lineToY(-42)
+                .setTangent(Math.toRadians(180))
+                .lineToXLinearHeading(-62, Math.toRadians(90))
+                .waitSeconds(1)
+                .setTangent(Math.toRadians(240))
+                .lineToYLinearHeading(-55, Math.toRadians(45))
+                .waitSeconds(1)
+                .setTangent(Math.toRadians(105))
+                .lineToYLinearHeading(-42, Math.toRadians(90))
+                .waitSeconds(1)
+                .setTangent(Math.toRadians(285))
+                .lineToYLinearHeading(-55, Math.toRadians(45))
+                .build();
+
+        TrajectoryActionBuilder path1 = drive.actionBuilder(new Pose2d(-10, -60, Math.toRadians(270)))
                 .setTangent(Math.toRadians(75))
                 .lineToY(-35);
 
-        TrajectoryActionBuilder path2 = path1.fresh()
-                .setTangent(Math.toRadians(185))
-                .lineToXLinearHeading(-48, Math.toRadians(90));
-
-        Action path = drive.actionBuilder(new Pose2d(-10, -65, Math.toRadians(270)))
-                .setTangent(Math.toRadians(75))
-                .lineToY(-35)
-                .waitSeconds(1)
-                .setTangent(Math.toRadians(185))
-                .lineToXLinearHeading(-48, Math.toRadians(90))
-                .waitSeconds(1)
-                .setTangent(Math.toRadians(240))
-                .lineToYLinearHeading(-50, Math.toRadians(45))
-                .waitSeconds(1)
-                .setTangent(Math.toRadians(120))
-                .lineToYLinearHeading(-40, Math.toRadians(90))
-                .waitSeconds(1)
-                .setTangent(Math.toRadians(290))
-                .lineToYLinearHeading(-50, Math.toRadians(55))
-                .build();
-
-        Action path3 = drive.actionBuilder(new Pose2d(0,
-
-                        -65, Math.toRadians(90)))
+        TrajectoryActionBuilder path2 = path1.endTrajectory().fresh()
+                .setTangent(Math.toRadians(270))
+                .lineToY(-42)
+                .setTangent(Math.toRadians(180))
+                .lineToXLinearHeading(-56, Math.toRadians(90))
                 .setTangent(Math.toRadians(90))
-                .lineToYLinearHeading(65, Math.toRadians(270))
-                .build();
+                .lineToY(-39);
 
-        /*
+        TrajectoryActionBuilder path3 = path2.endTrajectory().fresh()
+                .setTangent(Math.toRadians(275))
+                .lineToYLinearHeading(-70, Math.toRadians(45));
+
         Actions.runBlocking(
                  new SequentialAction(
+                         armslidesclaw.claw(),
                          path1.build(),
-                         armslidesclaw.placeSpecimen()
+                         armslidesclaw.placeSpecimen(),
+                         path2.build(),
+                         armslidesclaw.pickupSample(),
+                         path3.build(),
+                         armslidesclaw.placeSample()
                  )
         );
-         */
 
-        Actions.runBlocking(
-                path3
-        );
     }
 }

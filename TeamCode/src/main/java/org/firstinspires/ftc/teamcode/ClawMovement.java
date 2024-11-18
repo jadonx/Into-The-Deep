@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static java.lang.Thread.sleep;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -17,25 +19,19 @@ public class ClawMovement extends OpMode {
         left = hardwareMap.get(CRServo.class, "leftServo");
         right = hardwareMap.get(CRServo.class, "rightServo");
         claw = hardwareMap.get(Servo.class, "clawServo");
-        claw.scaleRange(0.4, 0.6);
-        runtime = new ElapsedTime();
-
-        runtime.reset();
     }
 
     @Override
     public void loop(){
-        runtime.reset();
-
-        double leftPower = gamepad2.left_stick_y;
-        double rightPower = -gamepad2.right_stick_y;
-
-        left.setPower(leftPower);
-        right.setPower(rightPower);
-        if(gamepad2.a)
-            claw.setPosition(1.0);
-        else
-            claw.setPosition(0.0);
-
+        if(gamepad1.x) {
+            left.setPower(1.0);
+            right.setPower(-1.0);
+        }  else if (gamepad1.a) {
+            left.setPower(-1.0);
+            right.setPower(1.0);
+        } else if (gamepad1.b) {
+            left.setPower(0.0);
+            right.setPower(0.0);
+        }
     }
 }

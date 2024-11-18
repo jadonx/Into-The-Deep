@@ -77,7 +77,9 @@ public class FieldCentricPID extends OpMode {
         rightStickX = gamepad1.right_stick_x;
 
         robotOrientation = imu.getRobotYawPitchRollAngles();
+
         robotYaw = robotOrientation.getYaw(AngleUnit.RADIANS);
+        robotYaw = (robotYaw + Math.PI) % (2 * Math.PI) - Math.PI;
 
         double rotX = leftStickX * Math.cos(-robotYaw) - leftStickY * Math.sin(-robotYaw);
         double rotY = leftStickX * Math.sin(-robotYaw) + leftStickY * Math.cos(-robotYaw);
@@ -100,6 +102,10 @@ public class FieldCentricPID extends OpMode {
         double error = targetYaw - robotYaw;
         error = (error + Math.PI) % (2 * Math.PI) - Math.PI;
 
+        if (Math.abs(error) < Math.toRadians(2)) { // 2° tolerance
+            error = 0;
+        }
+
         // Compute PID Terms
         double derivative = (error - lastError) / timer.seconds();
         integralSum += error * timer.seconds();
@@ -116,10 +122,10 @@ public class FieldCentricPID extends OpMode {
         timer.reset();
 
         // FTC Dashboard
-        packet.put("Target: ", Math.toDegrees(targetYaw));
-        packet.put("Actual: ", Math.toDegrees(robotYaw));
-        packet.put("Error: ", Math.toDegrees(error));
-        packet.put("Yaw Acceleration", Math.abs(imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate));
-        dashboard.sendTelemetryPacket(packet);
+        telemetry.addData("Target: ", Math.toDegrees(targetYaw));
+        telemetry.addData("Actual: ", Math.toDegrees(robotYaw));
+        telemetry.addData("Error: ", Math.toDegrees(error));
+        telemetry.addData("Yaw Acceleration", Math.abs(imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate));
+        telemetry.update();
     }
 }
