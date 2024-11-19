@@ -52,70 +52,27 @@ public class SampleAutonomous extends LinearOpMode {
         }
 
         public class PlaceSpecimen implements Action {
-            private int targetArm = 1560;
-            private int targetSlides = 1100;
-
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 claw.setPosition(1.0);
 
-                arm.setTargetPosition(targetArm);
-                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                arm.setPower(0.8);
+                moveArm(1560);
 
-                while (Math.abs(arm.getCurrentPosition() - targetArm) > 20) {
-                    telemetry.addData("Current arm position ", arm.getCurrentPosition());
-                    telemetry.update();
-                }
+                sleep(200);
 
-                sleep(1000);
-
-                leftSlide.setTargetPosition(-targetSlides);
-                rightSlide.setTargetPosition(targetSlides);
-
-                leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-                leftSlide.setPower(0.8);
-                rightSlide.setPower(0.8);
-
-                while ((Math.abs(leftSlide.getCurrentPosition() + targetSlides) > 20) && (Math.abs(rightSlide.getCurrentPosition() - targetSlides) > 20)) {
-                    telemetry.addData("Left slide pos ", leftSlide.getCurrentPosition());
-                    telemetry.addData("Right slide pos ", rightSlide.getCurrentPosition());
-                    telemetry.update();
-                }
+                moveSlides(1100);
 
                 sleep(1000);
 
                 claw.setPosition(0);
 
-                targetSlides = 0;
+                while (claw.getPosition() > 0.1) {
 
-                leftSlide.setTargetPosition(-targetSlides);
-                rightSlide.setTargetPosition(targetSlides);
-
-                leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-                leftSlide.setPower(0.8);
-                rightSlide.setPower(0.8);
-
-                while ((Math.abs(leftSlide.getCurrentPosition() + targetSlides) > 20) && (Math.abs(rightSlide.getCurrentPosition() - targetSlides) > 20)) {
-                    telemetry.addData("Left slide pos ", leftSlide.getCurrentPosition());
-                    telemetry.addData("Right slide pos ", rightSlide.getCurrentPosition());
-                    telemetry.update();
                 }
 
-                targetArm = 0;
+                moveSlides(0);
 
-                arm.setTargetPosition(targetArm);
-                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                arm.setPower(0.8);
-
-                while (Math.abs(arm.getCurrentPosition() - targetArm) > 20) {
-                    telemetry.addData("Current arm position ", arm.getCurrentPosition());
-                    telemetry.update();
-                }
+                moveArm(0);
 
                 return false;
             }
@@ -125,40 +82,24 @@ public class SampleAutonomous extends LinearOpMode {
         }
 
         public class PlaceSample implements Action {
-            private int targetArm = 1650;
-            private int targetSlides = 2100;
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 claw.setPosition(1.0);
 
-                arm.setTargetPosition(targetArm);
-                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                arm.setPower(0.8);
-
-                while (Math.abs(arm.getCurrentPosition() - targetArm) > 20) {
-                    telemetry.addData("Current arm position ", arm.getCurrentPosition());
-                    telemetry.update();
-                }
+                moveArm(1650);
 
                 sleep(1000);
 
-                leftSlide.setTargetPosition(-targetSlides);
-                rightSlide.setTargetPosition(targetSlides);
-
-                leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-                leftSlide.setPower(0.8);
-                rightSlide.setPower(0.8);
-
-                while ((Math.abs(leftSlide.getCurrentPosition() + targetSlides) > 20) && (Math.abs(rightSlide.getCurrentPosition() - targetSlides) > 20)) {
-                    telemetry.addData("Left slide pos ", leftSlide.getCurrentPosition());
-                    telemetry.addData("Right slide pos ", rightSlide.getCurrentPosition());
-                    telemetry.update();
-                }
+                moveSlides(2100);
 
                 claw.setPosition(0);
+
+                while (claw.getPosition() > 0.1) {
+
+                }
+
+                moveSlides(0);
 
                 return false;
             }
@@ -168,36 +109,13 @@ public class SampleAutonomous extends LinearOpMode {
         }
 
         public class PickupSample implements Action {
-            private int targetArm = 400;
-            private int targetSlides = 320;
-
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 claw.setPosition(0);
 
-                arm.setTargetPosition(targetArm);
-                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                arm.setPower(0.8);
+                moveArm(400);
 
-                while (Math.abs(arm.getCurrentPosition() - targetArm) > 20) {
-                    telemetry.addData("Current arm position ", arm.getCurrentPosition());
-                    telemetry.update();
-                }
-
-                leftSlide.setTargetPosition(-targetSlides);
-                rightSlide.setTargetPosition(targetSlides);
-
-                leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-                leftSlide.setPower(0.8);
-                rightSlide.setPower(0.8);
-
-                while ((Math.abs(leftSlide.getCurrentPosition() + targetSlides) > 20) && (Math.abs(rightSlide.getCurrentPosition() - targetSlides) > 20)) {
-                    telemetry.addData("Left slide pos ", leftSlide.getCurrentPosition());
-                    telemetry.addData("Right slide pos ", rightSlide.getCurrentPosition());
-                    telemetry.update();
-                }
+                moveSlides(320);
 
                 leftClaw.setPower(1);
                 rightClaw.setPower(-1);
@@ -209,35 +127,15 @@ public class SampleAutonomous extends LinearOpMode {
 
                 sleep(750);
 
-                targetArm = 150;
-
-                arm.setTargetPosition(targetArm);
-                arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                arm.setPower(0.8);
-
-                while (Math.abs(arm.getCurrentPosition() - targetArm) > 20) {
-                    telemetry.addData("Current arm position ", arm.getCurrentPosition());
-                    telemetry.update();
-                }
+                moveArm(150);
 
                 claw.setPosition(1); //closing claw
 
-                targetSlides = 0;
+                while (claw.getPosition() < 0.9) {
 
-                leftSlide.setTargetPosition(-targetSlides);
-                rightSlide.setTargetPosition(targetSlides);
-
-                leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-                leftSlide.setPower(0.14);
-                rightSlide.setPower(0.14);
-
-                while ((Math.abs(leftSlide.getCurrentPosition() + targetSlides) > 20) && (Math.abs(rightSlide.getCurrentPosition() - targetSlides) > 20)) {
-                    telemetry.addData("Left slide pos ", leftSlide.getCurrentPosition());
-                    telemetry.addData("Right slide pos ", rightSlide.getCurrentPosition());
-                    telemetry.update();
                 }
+
+                moveSlides(0);
 
                 leftClaw.setPower(-1);
                 rightClaw.setPower(1);
@@ -254,16 +152,32 @@ public class SampleAutonomous extends LinearOpMode {
             return new PickupSample();
         }
 
-        public class Claw implements Action {
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                claw.setPosition(0);
+        public void moveArm(int targetArm) {
+            arm.setTargetPosition(targetArm);
+            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            arm.setPower(1);
 
-                return false;
+            while (Math.abs(arm.getCurrentPosition() - targetArm) > 20) {
+                telemetry.addData("Current arm position ", arm.getCurrentPosition());
+                telemetry.update();
             }
         }
-        public Action claw() {
-            return new Claw();
+
+        public void moveSlides(int targetSlides) {
+            leftSlide.setTargetPosition(-targetSlides);
+            rightSlide.setTargetPosition(targetSlides);
+
+            leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            leftSlide.setPower(0.8);
+            rightSlide.setPower(0.8);
+
+            while ((Math.abs(leftSlide.getCurrentPosition() + targetSlides) > 20) && (Math.abs(rightSlide.getCurrentPosition() - targetSlides) > 20)) {
+                telemetry.addData("Left slide pos ", leftSlide.getCurrentPosition());
+                telemetry.addData("Right slide pos ", rightSlide.getCurrentPosition());
+                telemetry.update();
+            }
         }
     }
 
@@ -314,7 +228,6 @@ public class SampleAutonomous extends LinearOpMode {
 
         Actions.runBlocking(
                  new SequentialAction(
-                         armslidesclaw.claw(),
                          path1.build(),
                          armslidesclaw.placeSpecimen(),
                          path2.build(),
