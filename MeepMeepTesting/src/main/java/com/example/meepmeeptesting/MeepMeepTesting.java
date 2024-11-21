@@ -145,11 +145,16 @@ public class MeepMeepTesting {
                 .setTangent(Math.toRadians(280))
                 .lineToYLinearHeading(-55, Math.toRadians(45));
 
+        TrajectoryActionBuilder path4 = path3.endTrajectory().fresh()
+                .setTangent(Math.toRadians(120))
+                .lineToYLinearHeading(-40, Math.toRadians(90));
+
         myBot.runAction(
                 new SequentialAction(
                         path1.build(),
                         path2.build(),
-                        path3.build()
+                        path3.build(),
+                        path4.build()
                 )
         );
 

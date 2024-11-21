@@ -23,15 +23,21 @@ public class ClawMovement extends OpMode {
 
     @Override
     public void loop(){
-        if(gamepad1.x) {
+        if(gamepad1.a) {
             left.setPower(1.0);
             right.setPower(-1.0);
-        }  else if (gamepad1.a) {
+        }  else if (gamepad1.y) {
             left.setPower(-1.0);
             right.setPower(1.0);
-        } else if (gamepad1.b) {
+        } else {
             left.setPower(0.0);
             right.setPower(0.0);
+        }
+
+        if (gamepad1.x) {
+            claw.setPosition(1);
+        } else if (gamepad1.b) {
+            claw.setPosition(0);
         }
     }
 }
