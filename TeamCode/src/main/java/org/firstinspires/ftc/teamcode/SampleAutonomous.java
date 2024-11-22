@@ -83,11 +83,19 @@ public class SampleAutonomous extends LinearOpMode {
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 claw.setPosition(1.0);
 
-                moveArm(1650, 1);
+                moveArm(1750, 1);
 
                 sleep(1000);
 
                 moveSlides(2100, 1);
+
+                leftClaw.setPower(-1);
+                rightClaw.setPower(1);
+
+                sleep(400);
+
+                leftClaw.setPower(0);
+                rightClaw.setPower(0);
 
                 claw.setPosition(0);
 
@@ -107,9 +115,7 @@ public class SampleAutonomous extends LinearOpMode {
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 claw.setPosition(0);
 
-                moveArm(400, 0.5);
-
-                moveSlides(320, 0.5);
+                moveArm(350, 0.5);
 
                 leftClaw.setPower(1);
                 rightClaw.setPower(-1);
@@ -119,21 +125,15 @@ public class SampleAutonomous extends LinearOpMode {
                 leftClaw.setPower(0);
                 rightClaw.setPower(0);
 
-                sleep(750);
+                sleep(850);
 
-                moveArm(150, 0.5);
+                moveArm(-50, 0.2);
 
                 claw.setPosition(1); //closing claw
 
-                moveSlides(0, 0.2);
+                sleep(1000);
 
-                leftClaw.setPower(-1);
-                rightClaw.setPower(1);
-
-                sleep(500);
-
-                leftClaw.setPower(0);
-                rightClaw.setPower(0);
+                moveArm(350, 0.5);
 
                 return false;
             }
@@ -265,11 +265,11 @@ public class SampleAutonomous extends LinearOpMode {
                 .setTangent(Math.toRadians(180))
                 .lineToXLinearHeading(-56, Math.toRadians(90))
                 .setTangent(Math.toRadians(90))
-                .lineToY(-39);
+                .lineToY(-35);
 
         TrajectoryActionBuilder path3 = path2.endTrajectory().fresh()
-                .setTangent(Math.toRadians(275))
-                .lineToYLinearHeading(-70, Math.toRadians(45));
+                .setTangent(Math.toRadians(270))
+                .lineToYLinearHeading(-62, Math.toRadians(45));
 
         TrajectoryActionBuilder path4 = path3.endTrajectory().fresh()
                 .setTangent(Math.toRadians(120))
