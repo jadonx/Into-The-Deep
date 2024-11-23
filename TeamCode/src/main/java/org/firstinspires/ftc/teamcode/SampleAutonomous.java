@@ -31,7 +31,7 @@ public class SampleAutonomous extends LinearOpMode {
         private CRServo leftClaw, rightClaw;
         private Servo claw;
 
-        private ElapsedTime runtime = new ElapsedTime();
+        private ElapsedTime timer = new ElapsedTime();
 
         public ArmSlidesClaw(HardwareMap hardwareMap) {
             arm = hardwareMap.get(DcMotorEx.class, "arm");
@@ -56,13 +56,13 @@ public class SampleAutonomous extends LinearOpMode {
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 claw.setPosition(1.0);
 
-                moveArm(1560, 1);
+                moveArm(1560, 0.7);
 
-                sleep(200);
+                sleep(500);
 
-                moveSlides(1100, 0.8);
+                moveSlides(1050, 0.8);
 
-                sleep(1000);
+                sleep(300);
 
                 claw.setPosition(0);
 
@@ -83,25 +83,31 @@ public class SampleAutonomous extends LinearOpMode {
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 claw.setPosition(1.0);
 
-                moveArm(1750, 1);
+                moveArm(1740, 1);
 
                 sleep(1000);
 
-                moveSlides(2100, 1);
+                moveSlides(2050, 1);
 
                 leftClaw.setPower(-1);
                 rightClaw.setPower(1);
 
-                sleep(400);
+                sleep(330);
 
                 leftClaw.setPower(0);
                 rightClaw.setPower(0);
 
                 claw.setPosition(0);
 
-                moveSlides(0, 0.4);
+                timer.reset();
 
-                moveArm(0, 1);
+                while (timer.milliseconds() < 600) {
+
+                }
+
+                moveSlides(0, 1);
+
+                moveArm(0, 0.6);
 
                 return false;
             }
@@ -127,13 +133,17 @@ public class SampleAutonomous extends LinearOpMode {
 
                 sleep(850);
 
-                moveArm(-50, 0.2);
+                moveArm(-50, 1);
 
                 claw.setPosition(1); //closing claw
 
-                sleep(1000);
+                timer.reset();
 
-                moveArm(350, 0.5);
+                while (timer.milliseconds() < 1000) {
+
+                }
+
+                moveArm(350, 0.7);
 
                 return false;
             }
@@ -147,23 +157,19 @@ public class SampleAutonomous extends LinearOpMode {
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 claw.setPosition(1);
 
-                while (claw.getPosition() < 0.9) {
-                    claw.setPosition(1);
-                    telemetry.addData("Claw pos: ", claw.getPosition());
-                    telemetry.update();
-                }
+                timer.reset();
 
-                sleep(1000);
+                while (timer.milliseconds() < 1000) {
+
+                }
 
                 claw.setPosition(0);
 
-                while (claw.getPosition() > 0.1) {
-                    claw.setPosition(0);
-                    telemetry.addData("Claw pos: ", claw.getPosition());
-                    telemetry.update();
-                }
+                timer.reset();
 
-                sleep(1000);
+                while (timer.milliseconds() < 1000) {
+
+                }
 
                 claw.setPosition(1);
 
@@ -263,7 +269,7 @@ public class SampleAutonomous extends LinearOpMode {
                 .setTangent(Math.toRadians(270))
                 .lineToY(-42)
                 .setTangent(Math.toRadians(180))
-                .lineToXLinearHeading(-56, Math.toRadians(90))
+                .lineToXLinearHeading(-54, Math.toRadians(90))
                 .setTangent(Math.toRadians(90))
                 .lineToY(-35);
 
@@ -272,8 +278,12 @@ public class SampleAutonomous extends LinearOpMode {
                 .lineToYLinearHeading(-62, Math.toRadians(45));
 
         TrajectoryActionBuilder path4 = path3.endTrajectory().fresh()
-                .setTangent(Math.toRadians(120))
-                .lineToYLinearHeading(-40, Math.toRadians(90));
+                .setTangent(Math.toRadians(90))
+                .lineToYLinearHeading(-45, Math.toRadians(90));
+
+        TrajectoryActionBuilder path5 = path4.endTrajectory().fresh()
+                .setTangent(Math.toRadians(285))
+                .lineToYLinearHeading(-43, Math.toRadians(45));
 
         Actions.runBlocking(
                  new SequentialAction(
@@ -282,7 +292,9 @@ public class SampleAutonomous extends LinearOpMode {
                          path2.build(),
                          armslidesclaw.pickupSample(),
                          path3.build(),
-                         armslidesclaw.placeSample()
+                         armslidesclaw.placeSample(),
+                         path4.build(),
+                         armslidesclaw.pickupSample()
                  )
         );
 
