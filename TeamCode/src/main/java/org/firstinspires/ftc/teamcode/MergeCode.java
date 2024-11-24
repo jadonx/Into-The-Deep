@@ -149,12 +149,16 @@ public class MergeCode extends OpMode {
 
 
         arm = hardwareMap.get(DcMotorEx.class, "arm");
+        arm.setPower(-0.5);
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         leftSlide = hardwareMap.get(DcMotorEx .class, "leftSlide");
         rightSlide = hardwareMap.get(DcMotorEx.class, "rightSlide");
+
+        leftSlide.setPower(-1.0);
+        rightSlide.setPower(-1.0);
 
         leftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftSlide.setDirection(DcMotor.Direction.REVERSE);
@@ -237,7 +241,6 @@ public class MergeCode extends OpMode {
 
 
         } else if(gamepad2.dpad_up){//linear slide and arm code
-
             currentSlidePosition = moveSlides(5);
             currentArmPosition = moveArm(1700);
 
@@ -277,7 +280,6 @@ public class MergeCode extends OpMode {
             moveSlides(1500);
             moveArm(1850);
 
-            runtime.reset();
             while(runtime.seconds()<0.5){}
 
             leftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -285,9 +287,7 @@ public class MergeCode extends OpMode {
             leftSlide.setPower(-1.0);
             rightSlide.setPower(-1.0);
 
-            runtime.reset();
 
-            while(runtime.seconds()<0.5){}
 
             runtime.reset();
             currentArmPosition = moveArm(2400);
@@ -466,18 +466,6 @@ public class MergeCode extends OpMode {
         //dashboard.sendTelemetryPacket(packet);
          */
     }
-    /*
-    @Override
-    public void stop() {
-        runtime.reset();
-        while(runtime.milliseconds()<500){
-            moveWrist(1.0, -1.0);
-        }
-        moveWrist(0.0, 0.0);
-        currentSlidePosition = moveSlides(0);
-        currentArmPosition = moveArm(400);
-        currentSlidePosition = moveSlides(20);
-    }*/
 
     public int moveSlides(int position){
         leftSlide.setTargetPosition(position);

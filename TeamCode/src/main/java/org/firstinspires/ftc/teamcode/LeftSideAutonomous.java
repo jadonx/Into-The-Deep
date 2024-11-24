@@ -283,9 +283,7 @@ public class LeftSideAutonomous extends LinearOpMode {
                             path2.build(),
                             armslidesclaw.pickupSample(),
                             path3.build(),
-                            armslidesclaw.placeSample(),
-                            path4.build(),
-                            armslidesclaw.pickupSample()
+                            armslidesclaw.placeSample()
                     )
             );
         }
