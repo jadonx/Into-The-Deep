@@ -105,6 +105,14 @@ public class LeftSideAutonomous extends LinearOpMode {
 
                 }
 
+                leftClaw.setPower(1);
+                rightClaw.setPower(-1);
+
+                sleep(330);
+
+                leftClaw.setPower(0);
+                rightClaw.setPower(0);
+
                 moveSlides(0, 1);
 
                 moveArm(0, 0.6);
@@ -253,7 +261,7 @@ public class LeftSideAutonomous extends LinearOpMode {
 
         TrajectoryActionBuilder path3 = path2.endTrajectory().fresh()
                 .setTangent(Math.toRadians(270))
-                .lineToYLinearHeading(-62, Math.toRadians(45));
+                .lineToYLinearHeading(-60, Math.toRadians(45));
 
         TrajectoryActionBuilder path4 = path3.endTrajectory().fresh()
                 .setTangent(Math.toRadians(90))

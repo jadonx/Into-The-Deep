@@ -212,9 +212,6 @@ public class MergeCode extends OpMode {
 
 
         if(gamepad2.dpad_left || gamepad2.dpad_right){//linear slide and arm code
-
-            moveFieldCentric(gamepad2.left_stick_x, -gamepad2.left_stick_y, gamepad2.right_stick_x);
-
             /*
             targetArm = 200;
             armPower = 0.5;
@@ -241,8 +238,6 @@ public class MergeCode extends OpMode {
 
         } else if(gamepad2.dpad_up){//linear slide and arm code
 
-            moveFieldCentric(gamepad2.left_stick_x, -gamepad2.left_stick_y, gamepad2.right_stick_x);
-
             currentSlidePosition = moveSlides(5);
             currentArmPosition = moveArm(1700);
 
@@ -260,9 +255,6 @@ public class MergeCode extends OpMode {
 
 
         } else if(gamepad2.dpad_down){
-
-            moveFieldCentric(gamepad2.left_stick_x, -gamepad2.left_stick_y, gamepad2.right_stick_x);
-
             claw.setPosition(0);
 
             if(currentSlidePosition>400 && currentArmPosition>500){
@@ -280,14 +272,12 @@ public class MergeCode extends OpMode {
             currentSlidePosition = moveSlides(0);
 
         } else if(gamepad2.a){
-
-            moveFieldCentric(gamepad2.left_stick_x, -gamepad2.left_stick_y, gamepad2.right_stick_x);
-
             moveSlides(0);
             moveArm(2000);
             moveSlides(1500);
             moveArm(1850);
 
+            runtime.reset();
             while(runtime.seconds()<0.5){}
 
             leftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -295,7 +285,9 @@ public class MergeCode extends OpMode {
             leftSlide.setPower(-1.0);
             rightSlide.setPower(-1.0);
 
+            runtime.reset();
 
+            while(runtime.seconds()<0.5){}
 
             runtime.reset();
             currentArmPosition = moveArm(2400);
@@ -486,60 +478,6 @@ public class MergeCode extends OpMode {
         currentArmPosition = moveArm(400);
         currentSlidePosition = moveSlides(20);
     }*/
-    public void moveFieldCentric(double lX, double lY, double rX){
-        robotOrientation = imu.getRobotYawPitchRollAngles();
-        robotYaw = robotOrientation.getYaw(AngleUnit.RADIANS);
-
-        double rotX = lX * Math.cos(-robotYaw) - lY * Math.sin(-robotYaw);
-        double rotY = lX * Math.sin(-robotYaw) + lY * Math.cos(-robotYaw);
-        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rX), 1);
-
-        //  || Math.abs(imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate) > 1
-        if (Math.abs(rX) > 0.1) {
-            targetYaw = robotYaw;
-            lastError = 0;
-        }
-
-        if (gamepad1.x) {
-            imu.resetYaw();
-            targetYaw = 0;
-            integralSum = 0;
-            lastError = 0;
-        }
-
-        // PID Calculations
-        double error = targetYaw - robotYaw;
-        error = (error + Math.PI) % (2 * Math.PI) - Math.PI;
-
-        // Compute PID Terms
-        double derivative = (error - lastError) / timer.seconds();
-        integralSum += error * timer.seconds();
-        double correction = (Kp * error) + (Ki * integralSum) + (Kd * derivative);
-
-        double rotationPower = Math.abs(rX) > 0.1 ? rX : -correction;
-
-        frontLeft.setPower((rotY + rotX + rotationPower) / denominator);
-        frontRight.setPower((rotY - rotX - rotationPower) / denominator);
-        backLeft.setPower((rotY - rotX + rotationPower) / denominator);
-        backRight.setPower((rotY + rotX - rotationPower) / denominator);
-
-        lastError = error;
-        timer.reset();
-
-        packet.put("Target: ", Math.toDegrees(targetYaw));
-        packet.put("Actual: ", Math.toDegrees(robotYaw));
-        packet.put("Error: ", Math.toDegrees(error));
-        packet.put("Yaw Acceleration", Math.abs(imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate));
-
-
-        telemetry.addData("Angle: ", angle);
-        telemetry.addData("Latitude: ", lat);
-        telemetry.addData("Longitude: ", lon);
-        telemetry.addData("Center: ", center);
-        telemetry.addData("Xpower", leftStickX);
-
-        telemetry.addData("Ypower", leftStickY);
-    }
 
     public int moveSlides(int position){
         leftSlide.setTargetPosition(position);
