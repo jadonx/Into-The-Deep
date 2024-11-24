@@ -23,8 +23,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Config
-@Autonomous(name = "SampleAutonomous", group = "Autonomous")
-public class SampleAutonomous extends LinearOpMode {
+@Autonomous(name = "LeftSideAutonomous", group = "Autonomous")
+public class LeftSideAutonomous extends LinearOpMode {
 
     public class ArmSlidesClaw {
         private DcMotorEx arm, leftSlide, rightSlide;
@@ -239,28 +239,6 @@ public class SampleAutonomous extends LinearOpMode {
 
         ArmSlidesClaw armslidesclaw = new ArmSlidesClaw(hardwareMap);
 
-        waitForStart();
-
-        if (isStopRequested()) return;
-
-        Action path = drive.actionBuilder(new Pose2d(-10, -60, Math.toRadians(270)))
-                .setTangent(Math.toRadians(75))
-                .lineToY(-37)
-                .waitSeconds(3)
-                .lineToY(-42)
-                .setTangent(Math.toRadians(180))
-                .lineToXLinearHeading(-62, Math.toRadians(90))
-                .waitSeconds(1)
-                .setTangent(Math.toRadians(240))
-                .lineToYLinearHeading(-55, Math.toRadians(45))
-                .waitSeconds(1)
-                .setTangent(Math.toRadians(105))
-                .lineToYLinearHeading(-42, Math.toRadians(90))
-                .waitSeconds(1)
-                .setTangent(Math.toRadians(285))
-                .lineToYLinearHeading(-55, Math.toRadians(45))
-                .build();
-
         TrajectoryActionBuilder path1 = drive.actionBuilder(new Pose2d(-10, -60, Math.toRadians(270)))
                 .setTangent(Math.toRadians(75))
                 .lineToY(-35);
@@ -285,18 +263,42 @@ public class SampleAutonomous extends LinearOpMode {
                 .setTangent(Math.toRadians(285))
                 .lineToYLinearHeading(-43, Math.toRadians(45));
 
-        Actions.runBlocking(
-                 new SequentialAction(
-                         path1.build(),
-                         armslidesclaw.placeSpecimen(),
-                         path2.build(),
-                         armslidesclaw.pickupSample(),
-                         path3.build(),
-                         armslidesclaw.placeSample(),
-                         path4.build(),
-                         armslidesclaw.pickupSample()
-                 )
-        );
+        waitForStart();
+
+        if (isStopRequested()) return;
+
+        while (opModeIsActive()) {
+            Actions.runBlocking(
+                    new SequentialAction(
+                            path1.build(),
+                            armslidesclaw.placeSpecimen(),
+                            path2.build(),
+                            armslidesclaw.pickupSample(),
+                            path3.build(),
+                            armslidesclaw.placeSample(),
+                            path4.build(),
+                            armslidesclaw.pickupSample()
+                    )
+            );
+        }
+
+        Action path = drive.actionBuilder(new Pose2d(-10, -60, Math.toRadians(270)))
+                .setTangent(Math.toRadians(75))
+                .lineToY(-37)
+                .waitSeconds(3)
+                .lineToY(-42)
+                .setTangent(Math.toRadians(180))
+                .lineToXLinearHeading(-62, Math.toRadians(90))
+                .waitSeconds(1)
+                .setTangent(Math.toRadians(240))
+                .lineToYLinearHeading(-55, Math.toRadians(45))
+                .waitSeconds(1)
+                .setTangent(Math.toRadians(105))
+                .lineToYLinearHeading(-42, Math.toRadians(90))
+                .waitSeconds(1)
+                .setTangent(Math.toRadians(285))
+                .lineToYLinearHeading(-55, Math.toRadians(45))
+                .build();
 
         /*
         Actions.runBlocking(
