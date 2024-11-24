@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -14,7 +14,6 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.SampleDetection;
 import org.opencv.core.Point;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -23,6 +22,9 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 @Config
 @TeleOp(name = "Final TeleOp")
@@ -81,7 +83,10 @@ public class MergeCode extends OpMode {
     public static double clawPosition = 0;
     public static boolean slidesExtended = false;
     private final double ticks_in_degree = 700 / 180.0;
-    public static double wristPosition = 0;
+
+    public static int currentArmPosition =0;
+    public static int currentSlidePosition=0;
+    public static int intendedSlidePosition=0;
 
 
 
@@ -191,13 +196,12 @@ public class MergeCode extends OpMode {
 
         runtime = new ElapsedTime();
 
-        targetArm = 0;
-        armPower = 0;
-        slidePosition = 0;
-        servoPosition = 0;
-        //clawPosition = 1.0;
-
         runtime.reset();
+
+        imu.resetYaw();
+        targetYaw = 0;
+        integralSum = 0;
+        lastError = 0;
     }
 
     @Override
@@ -206,334 +210,148 @@ public class MergeCode extends OpMode {
         leftStickX = gamepad1.left_stick_x;
         rightStickX = gamepad1.right_stick_x;
 
-        /*
-        double jS = -gamepad2.left_stick_y;
 
-        int leftEncoder = leftSlide.getCurrentPosition();
-        int rightEncoder = rightSlide.getCurrentPosition();
+        if(gamepad2.dpad_left || gamepad2.dpad_right){//linear slide and arm code
 
+            moveFieldCentric(gamepad2.left_stick_x, -gamepad2.left_stick_y, gamepad2.right_stick_x);
 
-        double power = pidController(leftEncoder, p,i,d);
+            /*
+            targetArm = 200;
+            armPower = 0.5;
+            slidePosition = 0;
+            servoPosition = -1.0;
 
-        if(targetArm > 700){
-            leftSlide.setPower(jS);
-            rightSlide.setPower(jS);
-        } else if(leftEncoder < 10000 && rightEncoder < 10000){
-            leftSlide.setPower(jS);
-            rightSlide.setPower(jS);
-        }*/
-
-/*
-        if (gamepad2.left_trigger>0.2){
+            leftSlide.setTargetPosition(0);
+            rightSlide.setTargetPosition(0);
+            leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             leftSlide.setPower(-1.0);
-            rightSlide.setPower(-1.0);
-            //targetArm = 0;
-        }*/
-//        moveMotor(power);
-
-
-
-//        if (rightEncoder > leftEncoder) {
-//            leftSlide.setPower(0);
-//            rightSlide.setPower(0);
-//        } else {
-//        }
-
-        /*
-        packet.put("p", p);
-        packet.put("i", i);
-        packet.put("d", d);
-        packet.put("kp", kp);
-        packet.put("ki", ki);
-        packet.put("kd", kd);
-        packet.put("kf", kf);
-        packet.put("Left Motor:", Math.abs(leftEncoder));
-        packet.put("Right Motor:", Math.abs(rightEncoder));
-        packet.put("Left-Right Motor:", Math.abs(leftEncoder) - Math.abs(rightEncoder));
-        packet.put("Power", power);
-        packet.put("Target", target);*/
-
-
-
-        /*
-        controller.setPID(kp, ki, kd);
-        armPos = arm.getCurrentPosition();
-        double pid = controller.calculate(armPos, targetArm);
-        double ff = Math.cos(Math.toRadians(targetArm / ticks_in_degree)) * kf;
-
-        double powerArm = pid + ff;
-
-
-        if(gamepad2.a){
-            targetArm = 0;
-        }
-        arm.setPower(powerArm);
-
-        packet.put("Arm Power", powerArm);
-
-        /*
-        if(gamepad2.right_stick_y==0.0){
-            powerArm = 0.05;
-        } else {
-            powerArm = gamepad2.right_stick_y;
-        }
-
-        arm.setPower(powerArm);
-
-         */
-        if(gamepad2.dpad_left || gamepad2.dpad_right){
-            //linear slide and arm code
-
-            leftSlide.setTargetPosition(0);
-            rightSlide.setTargetPosition(0);
-            leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            leftSlide.setPower(1.0);
-            rightSlide.setPower(1.0);
-
-            while(Math.abs(leftSlide.getCurrentPosition()-leftSlide.getTargetPosition())>20
-                    && Math.abs(rightSlide.getCurrentPosition()-rightSlide.getTargetPosition())>20){
-
+            rightSlide.setPower(-1.0);*/
+            runtime.reset();
+            while(runtime.milliseconds()<500){
+                moveWrist(1.0, -1.0);
             }
-            targetArm = 250;
-            armPower = 0.3;
-            slidePosition = 200;
-            servoPosition = 1.0;
+            moveWrist(0.0, 0.0);
+            currentSlidePosition = moveSlides(0);
+            currentArmPosition = moveArm(400);
+            currentSlidePosition = moveSlides(20);
+            //currentSlidePosition = moveSlides(500);
 
 
-        } else if(gamepad2.dpad_up){
-            //linear slide and arm code
 
-            leftSlide.setTargetPosition(0);
-            rightSlide.setTargetPosition(0);
-            leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            leftSlide.setPower(1.0);
-            rightSlide.setPower(1.0);
-            while(leftSlide.isBusy()){}
-            targetArm = 1650;
-            armPower = 0.3;
-            slidePosition = 2100;
-            //servoPosition = -1.0;
-            //clawPosition = 0.0;
+        } else if(gamepad2.dpad_up){//linear slide and arm code
+
+            moveFieldCentric(gamepad2.left_stick_x, -gamepad2.left_stick_y, gamepad2.right_stick_x);
+
+            currentSlidePosition = moveSlides(5);
+            currentArmPosition = moveArm(1700);
+
+            while(runtime.seconds()<0.3){}
+
+            /*
+            try {
+                Thread.sleep(750); // Delay for 500 milliseconds (0.5 seconds)
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }*/
+
+            currentSlidePosition = moveSlides(2200);
+            runtime.reset();
+
 
         } else if(gamepad2.dpad_down){
 
+            moveFieldCentric(gamepad2.left_stick_x, -gamepad2.left_stick_y, gamepad2.right_stick_x);
 
-            targetArm = 0;
-            armPower = 0.5;
-            slidePosition = 15;
-            //servoPosition = 0.0;
-            clawPosition = 1.0;
+            claw.setPosition(0);
 
+            if(currentSlidePosition>400 && currentArmPosition>500){
+                currentSlidePosition = moveSlides(5);
+            }
+
+            currentArmPosition = moveArm(0);
+
+            claw.setPosition(1);
+
+            runtime.reset();
+            while(runtime.seconds()<0.5){}
+
+            currentArmPosition = moveArm(400);
+            currentSlidePosition = moveSlides(0);
+
+        } else if(gamepad2.a){
+
+            moveFieldCentric(gamepad2.left_stick_x, -gamepad2.left_stick_y, gamepad2.right_stick_x);
+
+            moveSlides(0);
+            moveArm(2000);
+            moveSlides(1500);
+            moveArm(1850);
+
+            while(runtime.seconds()<0.5){}
+
+            leftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            rightSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            leftSlide.setPower(-1.0);
+            rightSlide.setPower(-1.0);
+
+
+
+            runtime.reset();
+            currentArmPosition = moveArm(2400);
+            currentArmPosition = moveArm(0);
+
+        }
+
+        /*
+        if(Math.abs(targetArm - arm.getCurrentPosition())>10 && (leftSlide.getCurrentPosition()>50
+                || rightSlide.getCurrentPosition()>50)){ //sets the slides down before moving the arm
             leftSlide.setTargetPosition(0);
             rightSlide.setTargetPosition(0);
             leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            leftSlide.setPower(1.0);
-            rightSlide.setPower(1.0);
+            leftSlide.setPower(-1.0);
+            rightSlide.setPower(-1.0);
 
-            while(leftSlide.getCurrentPosition()>5){
+            while(leftSlide.isBusy() || rightSlide.isBusy()){
 
             }
+        }*/
 
-        } else if(gamepad2.left_bumper){
-            targetArm = 1700;
-            armPower = 0.5;
-            slidePosition = 10;
+        if(Math.abs(gamepad2.left_stick_y)>0.1){ //up and down on the claw
+            moveWrist(gamepad2.left_stick_y, -gamepad2.left_stick_y);
+        } else if(Math.abs(gamepad2.left_stick_x)>0.1) { // right and left on the claw
+            moveWrist(0.9*gamepad2.left_stick_x, 0.9*gamepad2.left_stick_x);
+        } else { // do nothing
+            moveWrist(0.0,0.0);
         }
 
+        if(currentArmPosition == 400){
+            currentSlidePosition = moveSlides(1400, -gamepad2.right_stick_y);
+        }
 
-
-
-
-        /*
-        if(servoPosition==1.0){//claw moves for half a second in desired direction
-            runtime.reset();
-            while(runtime.milliseconds()<1000){
-                left.setPower(servoPosition);
-                right.setPower(-servoPosition);
-            }
-            servoPosition = 0;
+        if (gamepad2.right_trigger>0.2) {
+            claw.setPosition(0);
         } else {
-            left.setPower(0.0);
-            right.setPower(0.0);
-        }*/
-        if(targetArm == 0 && leftSlide.getCurrentPosition()>20){ //sets the slides down before moving the arm
-            leftSlide.setTargetPosition(0);
-            rightSlide.setTargetPosition(0);
-            leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            leftSlide.setPower(1.0);
-            rightSlide.setPower(1.0);
-
-            while(leftSlide.getCurrentPosition()>20){
-
-            }
+            claw.setPosition(1);
         }
+        //claw.setPosition(1- gamepad2.right_trigger);
 
-
-        arm.setTargetPosition(targetArm);
-        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        arm.setPower(armPower);
-
-        while(arm.isBusy()){
-
-            try {
-                Thread.sleep(1000);  // 1000 milliseconds = 1 second
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        leftSlide.setTargetPosition(slidePosition);
-        rightSlide.setTargetPosition(slidePosition);
-        leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftSlide.setPower(1.0);
-        rightSlide.setPower(1.0);
-
-        while(leftSlide.isBusy() || rightSlide.isBusy()){
-
-        }
-
-
-        /*
-        if(servoPosition!=0){ //claw moves for half a second in desired direction
-            runtime.reset();
-            while(runtime.milliseconds()<1500){
-                left.setPower(servoPosition);
-                right.setPower(-servoPosition);
-            }
-            runtime.reset();
-            claw.setPosition(clawPosition);
-
-            while(runtime.milliseconds()<500){
-
-            }
-            runtime.reset();
-            while (runtime.milliseconds() < 1500) {
-                left.setPower(-servoPosition);
-                right.setPower(servoPosition);
-            }
-            claw.setPosition(0.0);
-            servoPosition = 0;
-        } else {
-            left.setPower(0.0);
-            right.setPower(0.0);
-        }*/
-
-        left.setPower(gamepad2.left_stick_y);
-        right.setPower(-gamepad2.left_stick_y);
-
-        claw.setPosition(1.0-gamepad2.right_trigger);
-
-
-        telemetry.addData("pos", armPos);
-        telemetry.addData("LinearSlide", leftSlide.getCurrentPosition());
-        telemetry.addData("targetArm", arm.getCurrentPosition());
+        telemetry.addData("Arm Position", currentArmPosition);
+        telemetry.addData("Slides Position", currentSlidePosition);
 
 
 
-
-
-        /*
-        if (gamepad2.a) {
-            if (angle < 50.0 || angle > 130.0) {
-                left.setPower(0.3);
-                right.setPower(0.3);
-            } else if (angle < 80.0 || angle > 100.0){
-                left.setPower(0.2);
-                right.setPower(0.2);
-
-            } else if (angle < 85.0 || angle > 95.0){
-                left.setPower(0.15);
-                right.setPower(0.15);
-
-            } else if (angle < 88.0 || angle > 92.0){
-                left.setPower(0.1);
-                right.setPower(0.1);
-            } else {
-                left.setPower(0.0);
-                right.setPower(0.0);
-            }
-        }
-
-        if(gamepad2.b){
-            if(angle<80){
-                left.setPower(0.15);
-                right.setPower(0.15);
-            } else if(angle <88) {
-                left.setPower(0.1);
-                right.setPower(0.1);
-            } else if (angle>100){
-                left.setPower(-0.15);
-                right.setPower(-0.15);
-            } else if(angle>92){
-                left.setPower(-0.1);
-                right.setPower(-0.1);
-            }
-            else{
-                left.setPower(0.0);
-                right.setPower(0.0);
-            }
-
-
-        }*/
-/*
-        if(gamepad2.a){
-            left.setPower(-1.0);
-            right.setPower(1.0);
-        } else if(gamepad2.b){
-            left.setPower(1.0);
-            right.setPower(-1.0);
-        } else if(gamepad2.x){
-            power = (90-angle)/90;
-            if (Math.abs(power)<(0.06));
-
-            left.setPower(power);
-            right.setPower(power);
-
-            double x = center.x;
-            double y = center.y;
-
-            leftStickX = -(x-320)/Math.sqrt((x*x)+(y*y));
-            leftStickY = (y-180)/Math.sqrt((x*x)+(y*y));
-            rightStickX = 0.0;
-
-        } else{
-            left.setPower(0.0);
-            right.setPower(0.0);
-        }
-
-        if(gamepad2.y){
-            claw.setPosition(0.0);
-        }
-        else{
-            claw.setPosition(0.2);
-        }*/
-
-
-
-        if(Math.abs(gamepad2.left_stick_x)>0.1){
-            left.setPower(gamepad2.left_stick_x);
-            right.setPower(gamepad2.left_stick_x);
-        }
-        runtime.reset();
         if(gamepad2.x){ // moving to centralize the claw
-
             angle = pipeline.returnAngle();
             center = pipeline.returnCenter();
-
-
 
             double x = center.x;
             double y = center.y;
             if(Math.abs(x-320)>20 && Math.abs(y-180)>20){//setting the center
-                moveRobotCentric(-(x-320)/Math.sqrt((x*x)+(y*y)), (y-180)/Math.sqrt((x*x)+(y*y)), 0);
+                moveRobotCentric(-(x-320)/Math.sqrt((x*x)+(y*y)), -(y-180)/Math.sqrt((x*x)+(y*y)), 0);
             } else if(Math.abs(angle-90)>3){
                 power = (90-angle)/90;
-                wristPower+=power;
                 left.setPower(power);
                 right.setPower(power); //setting the angle
             } else {
@@ -542,8 +360,6 @@ public class MergeCode extends OpMode {
 
 
         } else { // move normally using gamepad1
-
-
             robotOrientation = imu.getRobotYawPitchRollAngles();
             robotYaw = robotOrientation.getYaw(AngleUnit.RADIANS);
 
@@ -594,22 +410,193 @@ public class MergeCode extends OpMode {
             telemetry.addData("Longitude: ", lon);
             telemetry.addData("Center: ", center);
             telemetry.addData("Xpower", leftStickX);
-            telemetry.addData("Wrist Power", wristPower);
+
             telemetry.addData("Ypower", leftStickY);
         }
 
 
-        if(gamepad2.y){
-            while(wristPower!=0){
-                left.setPower(-wristPower);
-                right.setPower(-wristPower);
-                wristPower--;
-            }
+        /*
+        robotOrientation = imu.getRobotYawPitchRollAngles();
+
+        robotYaw = robotOrientation.getYaw(AngleUnit.RADIANS);
+        robotYaw = (robotYaw + Math.PI) % (2 * Math.PI) - Math.PI;
+
+        double rotX = leftStickX * Math.cos(-robotYaw) - leftStickY * Math.sin(-robotYaw);
+        double rotY = leftStickX * Math.sin(-robotYaw) + leftStickY * Math.cos(-robotYaw);
+        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rightStickX), 1);
+
+        //  || Math.abs(imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate) > 1
+        if (Math.abs(rightStickX) > 0.1) {
+            targetYaw = robotYaw;
+            lastError = 0;
         }
+
+        if (gamepad1.x) {
+            imu.resetYaw();
+            targetYaw = 0;
+            integralSum = 0;
+            lastError = 0;
+        }
+
+        // PID Calculations
+        double error = targetYaw - robotYaw;
+        error = (error + Math.PI) % (2 * Math.PI) - Math.PI;
+
+        if (Math.abs(error) < Math.toRadians(2)) { // 2Â° tolerance
+            error = 0;
+        }
+
+        // Compute PID Terms
+        double derivative = (error - lastError) / timer.seconds();
+        integralSum += error * timer.seconds();
+        double correction = (Kp * error) + (Ki * integralSum) + (Kd * derivative);
+
+        double rotationPower = Math.abs(rightStickX) > 0.1 ? rightStickX : -correction;
+
+        frontLeft.setPower((rotY + rotX + rotationPower) / denominator);
+        frontRight.setPower((rotY - rotX - rotationPower) / denominator);
+        backLeft.setPower((rotY - rotX + rotationPower) / denominator);
+        backRight.setPower((rotY + rotX - rotationPower) / denominator);
+
+        lastError = error;
+        timer.reset();
+
+        //telemetry.addData("Angle: ", angle);
+        //telemetry.addData("Latitude: ", lat);
+        //telemetry.addData("Longitude: ", lon);
+        //telemetry.addData("Center: ", center);
+        //telemetry.addData("Xpower", leftStickX);
+
+        //telemetry.addData("Ypower", leftStickY);
 
         // FTC Dashboard
         telemetry.update();
-        dashboard.sendTelemetryPacket(packet);
+        //dashboard.sendTelemetryPacket(packet);
+         */
+    }
+    /*
+    @Override
+    public void stop() {
+        runtime.reset();
+        while(runtime.milliseconds()<500){
+            moveWrist(1.0, -1.0);
+        }
+        moveWrist(0.0, 0.0);
+        currentSlidePosition = moveSlides(0);
+        currentArmPosition = moveArm(400);
+        currentSlidePosition = moveSlides(20);
+    }*/
+    public void moveFieldCentric(double lX, double lY, double rX){
+        robotOrientation = imu.getRobotYawPitchRollAngles();
+        robotYaw = robotOrientation.getYaw(AngleUnit.RADIANS);
+
+        double rotX = lX * Math.cos(-robotYaw) - lY * Math.sin(-robotYaw);
+        double rotY = lX * Math.sin(-robotYaw) + lY * Math.cos(-robotYaw);
+        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rX), 1);
+
+        //  || Math.abs(imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate) > 1
+        if (Math.abs(rX) > 0.1) {
+            targetYaw = robotYaw;
+            lastError = 0;
+        }
+
+        if (gamepad1.x) {
+            imu.resetYaw();
+            targetYaw = 0;
+            integralSum = 0;
+            lastError = 0;
+        }
+
+        // PID Calculations
+        double error = targetYaw - robotYaw;
+        error = (error + Math.PI) % (2 * Math.PI) - Math.PI;
+
+        // Compute PID Terms
+        double derivative = (error - lastError) / timer.seconds();
+        integralSum += error * timer.seconds();
+        double correction = (Kp * error) + (Ki * integralSum) + (Kd * derivative);
+
+        double rotationPower = Math.abs(rX) > 0.1 ? rX : -correction;
+
+        frontLeft.setPower((rotY + rotX + rotationPower) / denominator);
+        frontRight.setPower((rotY - rotX - rotationPower) / denominator);
+        backLeft.setPower((rotY - rotX + rotationPower) / denominator);
+        backRight.setPower((rotY + rotX - rotationPower) / denominator);
+
+        lastError = error;
+        timer.reset();
+
+        packet.put("Target: ", Math.toDegrees(targetYaw));
+        packet.put("Actual: ", Math.toDegrees(robotYaw));
+        packet.put("Error: ", Math.toDegrees(error));
+        packet.put("Yaw Acceleration", Math.abs(imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate));
+
+
+        telemetry.addData("Angle: ", angle);
+        telemetry.addData("Latitude: ", lat);
+        telemetry.addData("Longitude: ", lon);
+        telemetry.addData("Center: ", center);
+        telemetry.addData("Xpower", leftStickX);
+
+        telemetry.addData("Ypower", leftStickY);
+    }
+
+    public int moveSlides(int position){
+        leftSlide.setTargetPosition(position);
+        rightSlide.setTargetPosition(position);
+        leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftSlide.setPower(1.0);
+        rightSlide.setPower(1.0);
+
+        while(leftSlide.isBusy() || rightSlide.isBusy()){
+            leftStickX = 0;
+            leftStickY = 0;
+            rightStickX = 0;
+        }
+
+        return position;
+    }
+    public int moveSlides(int position, double speed){
+        if(speed < 0){
+            leftSlide.setTargetPosition(0);
+            rightSlide.setTargetPosition(0);
+            leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftSlide.setPower(Math.abs(speed));
+            rightSlide.setPower(Math.abs(speed));
+        } else if(speed>=0){
+            leftSlide.setTargetPosition(position);
+            rightSlide.setTargetPosition(position);
+            leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftSlide.setPower(Math.abs(speed));
+            rightSlide.setPower(Math.abs(speed));
+        }
+        return leftSlide.getCurrentPosition();
+
+    }
+
+    public void moveWrist(double speed1, double speed2){
+        left.setPower(speed1);
+        right.setPower(speed2);
+    }
+
+    public int moveArm(int position){
+        arm.setTargetPosition(position);
+        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        arm.setPower(0.5);
+
+        while(arm.isBusy()){
+            leftStickY = -gamepad1.left_stick_y;
+            leftStickX = gamepad1.left_stick_x;
+            rightStickX = gamepad1.right_stick_x;
+
+
+
+
+        }
+        return position;
     }
 
     public void moveRobotCentric(double x, double y, double rx){

@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -36,7 +38,8 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.ArrayList;
 import java.util.List;
 
-@TeleOp(name = "adaptive claw")
+//@TeleOp(name = "adaptive claw")
+@Disabled
 public class AdaptiveClaw extends LinearOpMode {
     double cX = 0;
     double cY = 0;
