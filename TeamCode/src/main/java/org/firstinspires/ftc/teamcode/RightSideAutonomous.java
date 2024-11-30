@@ -57,7 +57,7 @@ public class RightSideAutonomous extends LinearOpMode {
                 leftClaw.setPower(-1);
                 rightClaw.setPower(1);
 
-                sleep(200);
+                sleep(100);
 
                 leftClaw.setPower(0);
                 rightClaw.setPower(0);
@@ -65,13 +65,16 @@ public class RightSideAutonomous extends LinearOpMode {
 
                 claw.setPosition(1.0);
 
-                moveArm(1400);
+                moveArm(1450);
 
-                sleep(500);
+                sleep(300);
 
-                moveSlides(700);
+                moveSlides(645);
 
-                moveArm(1550);
+                moveArm(1545);
+
+                sleep(200);
+
 
                 moveSlides(1100);
 
@@ -85,7 +88,7 @@ public class RightSideAutonomous extends LinearOpMode {
                 moveSlides(0);
 
 
-                sleep(500);
+                sleep(200);
 
 
                 moveArm(0);
@@ -94,7 +97,7 @@ public class RightSideAutonomous extends LinearOpMode {
                 leftClaw.setPower(-1);
                 rightClaw.setPower(1);
 
-                sleep(400);
+                sleep(50);
 
                 leftClaw.setPower(0);
                 rightClaw.setPower(0);
@@ -121,7 +124,7 @@ public class RightSideAutonomous extends LinearOpMode {
                 leftClaw.setPower(1);
                 rightClaw.setPower(-1);
 
-                sleep(600);
+                sleep(500);
 
                 leftClaw.setPower(0);
                 rightClaw.setPower(0);
@@ -151,6 +154,45 @@ public class RightSideAutonomous extends LinearOpMode {
         }
         public Action pickupSample() {
             return new PickupSample();
+        }
+
+        public class pickupSpecimen1 implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                claw.setPosition(0);
+
+                leftClaw.setPower(1);
+                rightClaw.setPower(-1);
+
+                sleep(190);
+
+                leftClaw.setPower(0);
+                rightClaw.setPower(0);
+
+                return false;
+            }
+        }
+        public Action pickupSpecimen1() {
+            return new pickupSpecimen1();
+        }public class pickupSpecimen2 implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                claw.setPosition(1);
+
+                leftClaw.setPower(-1);
+                rightClaw.setPower(1);
+
+                sleep(150);
+
+                leftClaw.setPower(0);
+                rightClaw.setPower(0);
+
+
+                return false;
+            }
+        }
+        public Action pickupSpecimen2() {
+            return new pickupSpecimen2();
         }
 
         public void moveArm(int targetArm) {
@@ -195,36 +237,26 @@ public class RightSideAutonomous extends LinearOpMode {
 
         TrajectoryActionBuilder path1 = drive.actionBuilder(new Pose2d(10, -62, Math.toRadians(180)))
                 .waitSeconds(0.1)
-                .setTangent(Math.toRadians(123))
-                .lineToYLinearHeading(-25.5, Math.toRadians(270))
+                .setTangent(Math.toRadians(118))
+                .lineToYLinearHeading(-23.5, Math.toRadians(270))
 
                 ;
         // đi chưa tới chamber, khi quay về phải đợi vài giây
 
 
         TrajectoryActionBuilder path2 = path1.endTrajectory().fresh()
-                .setTangent(Math.toRadians(270))
-                .lineToY(-38)
-                .setTangent(Math.toRadians(0))
-                .lineToXLinearHeading(35, Math.toRadians(90))
-                .setTangent(Math.toRadians(90))
-                .lineToY(-5)
-                .setTangent(Math.toRadians(0))
-                .lineToX(49.5)
+                .setTangent(Math.toRadians(315))
+                .lineToYLinearHeading(-64, Math.toRadians(0))
                 ;
 
         TrajectoryActionBuilder path3 = path2.endTrajectory().fresh()
-                .setTangent(Math.toRadians(270))
-                .lineToY(-55)
-                .setTangent(Math.toRadians(90))
-                .lineToY(-5)
+                .setTangent(Math.toRadians(0))
+                .lineToX(25)
                 ;
 
         TrajectoryActionBuilder path4 = path3.endTrajectory().fresh()
-                .setTangent(Math.toRadians(90))
-                .lineToY(-5)
-                .setTangent(Math.toRadians(0))
-                .lineToX(70)
+                .setTangent(Math.toRadians(140))
+                .lineToYLinearHeading(-42, Math.toRadians(270))
                 ;
 
         TrajectoryActionBuilder path5 = path4.endTrajectory().fresh()
@@ -265,7 +297,16 @@ public class RightSideAutonomous extends LinearOpMode {
         Actions.runBlocking(
                 new SequentialAction(
                         path1.build(), //Place specimen
-                        armslidesclaw.placeSpecimen()  // place
+                        armslidesclaw.placeSpecimen(),
+
+                        path2.build(),
+                        armslidesclaw.pickupSpecimen1(),
+                        path3.build(),// place
+                        armslidesclaw.pickupSpecimen2(),
+
+                        path4.build(),
+                        armslidesclaw.placeSpecimen()
+
 
                 )
         );

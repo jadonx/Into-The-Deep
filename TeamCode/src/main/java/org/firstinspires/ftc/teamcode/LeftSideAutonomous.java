@@ -255,7 +255,7 @@ public class LeftSideAutonomous extends LinearOpMode {
                 .setTangent(Math.toRadians(270))
                 .lineToY(-42)
                 .setTangent(Math.toRadians(180))
-                .lineToXLinearHeading(-54, Math.toRadians(90))
+                .lineToXLinearHeading(-52, Math.toRadians(90))
                 .setTangent(Math.toRadians(90))
                 .lineToY(-35);
 
@@ -288,23 +288,7 @@ public class LeftSideAutonomous extends LinearOpMode {
             );
         }
 
-        Action path = drive.actionBuilder(new Pose2d(-10, -60, Math.toRadians(270)))
-                .setTangent(Math.toRadians(75))
-                .lineToY(-37)
-                .waitSeconds(3)
-                .lineToY(-42)
-                .setTangent(Math.toRadians(180))
-                .lineToXLinearHeading(-62, Math.toRadians(90))
-                .waitSeconds(1)
-                .setTangent(Math.toRadians(240))
-                .lineToYLinearHeading(-55, Math.toRadians(45))
-                .waitSeconds(1)
-                .setTangent(Math.toRadians(105))
-                .lineToYLinearHeading(-42, Math.toRadians(90))
-                .waitSeconds(1)
-                .setTangent(Math.toRadians(285))
-                .lineToYLinearHeading(-55, Math.toRadians(45))
-                .build();
+
 
         /*
         Actions.runBlocking(

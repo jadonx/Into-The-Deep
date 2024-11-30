@@ -79,7 +79,6 @@ public class FieldCentricPID extends OpMode {
         robotOrientation = imu.getRobotYawPitchRollAngles();
 
         robotYaw = robotOrientation.getYaw(AngleUnit.RADIANS);
-        robotYaw = (robotYaw + Math.PI) % (2 * Math.PI) - Math.PI;
 
         double rotX = leftStickX * Math.cos(-robotYaw) - leftStickY * Math.sin(-robotYaw);
         double rotY = leftStickX * Math.sin(-robotYaw) + leftStickY * Math.cos(-robotYaw);
@@ -99,8 +98,7 @@ public class FieldCentricPID extends OpMode {
         }
 
         // PID Calculations
-        double error = targetYaw - robotYaw;
-        error = (error + Math.PI) % (2 * Math.PI) - Math.PI;
+        double error = angleWrap(targetYaw - robotYaw);
 
         if (Math.abs(error) < Math.toRadians(2)) { // 2° tolerance
             error = 0;
@@ -127,5 +125,19 @@ public class FieldCentricPID extends OpMode {
         telemetry.addData("Error: ", Math.toDegrees(error));
         telemetry.addData("Yaw Acceleration", Math.abs(imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate));
         telemetry.update();
+    }
+
+    // This function normalizes the angle so it returns a value between -180° and 180° instead of 0° to 360°.
+    public double angleWrap(double radians) {
+
+        while (radians > Math.PI) {
+            radians -= 2 * Math.PI;
+        }
+        while (radians < -Math.PI) {
+            radians += 2 * Math.PI;
+        }
+
+        // keep in mind that the result is in radians
+        return radians;
     }
 }

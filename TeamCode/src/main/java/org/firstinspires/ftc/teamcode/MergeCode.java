@@ -5,7 +5,6 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -14,6 +13,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.Test.SampleDetection;
 import org.opencv.core.Point;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -22,9 +22,6 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 
 @Config
 @TeleOp(name = "Final TeleOp")
@@ -145,20 +142,14 @@ public class MergeCode extends OpMode {
 
         targetYaw = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
-
-
-
         arm = hardwareMap.get(DcMotorEx.class, "arm");
-        arm.setPower(-0.5);
+
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         leftSlide = hardwareMap.get(DcMotorEx .class, "leftSlide");
         rightSlide = hardwareMap.get(DcMotorEx.class, "rightSlide");
-
-        leftSlide.setPower(-1.0);
-        rightSlide.setPower(-1.0);
 
         leftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftSlide.setDirection(DcMotor.Direction.REVERSE);
@@ -280,7 +271,8 @@ public class MergeCode extends OpMode {
             moveSlides(1500);
             moveArm(1850);
 
-            while(runtime.seconds()<0.5){}
+            runtime.reset();
+            while(runtime.seconds()<1.5){}
 
             leftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rightSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -290,6 +282,8 @@ public class MergeCode extends OpMode {
 
 
             runtime.reset();
+            while(runtime.seconds()<1.5){}
+
             currentArmPosition = moveArm(2400);
             currentArmPosition = moveArm(0);
 

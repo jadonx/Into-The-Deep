@@ -63,15 +63,14 @@ public final class MecanumDrive {
                 RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
 
         // drive model parameters
-
-        public double inPerTick = 0.0315971365095; // old: 0.0311418685121
-        public double lateralInPerTick = 0.0354557541734; // old: 0.0326567638054
-        public double trackWidthTicks = 822.8225297843143; // old: 832.417057440032
+        public double inPerTick = (double) 120 / 60224;
+        public double lateralInPerTick = 0.001186398460383289;
+        public double trackWidthTicks = 6430.884991107485;
 
         // feedforward parameters (in tick units)
-        public double kS = 3.0869879214803593; // old: 2.010801982638
-        public double kV = 0.003900466750834458; // old: 0.004341406222
-        public double kA = 0.001;
+        public double kS = 1.9810533264399237;
+        public double kV = 0.0002765961211879701;
+        public double kA = 0.0001;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -83,9 +82,9 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 5;
-        public double lateralGain = 2.7;
-        public double headingGain = 1.5; // shared with turn
+        public double axialGain = 5.0;
+        public double lateralGain = 5.0;
+        public double headingGain = 5.0; // shared with turn
 
         public double axialVelGain = 0.0;
         public double lateralVelGain = 0.0;
@@ -141,8 +140,6 @@ public final class MecanumDrive {
 
             // TODO: reverse encoders if needed
             //   leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-            leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-            leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         }
 
         @Override
@@ -244,7 +241,7 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new DriveLocalizer();
+        localizer = new ThreeDeadWheelLocalizer(hardwareMap, PARAMS.inPerTick);
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
