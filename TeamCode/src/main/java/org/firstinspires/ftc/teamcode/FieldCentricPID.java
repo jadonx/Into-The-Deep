@@ -41,8 +41,8 @@ public class FieldCentricPID extends OpMode {
     ElapsedTime timer = new ElapsedTime();
 
     // FTC Dashboard
-    FtcDashboard dashboard = FtcDashboard.getInstance();
-    TelemetryPacket packet = new TelemetryPacket();
+//    FtcDashboard dashboard = FtcDashboard.getInstance();
+//    TelemetryPacket packet = new TelemetryPacket();
 
     @Override
     public void init() {
@@ -119,12 +119,12 @@ public class FieldCentricPID extends OpMode {
         lastError = error;
         timer.reset();
 
-        // FTC Dashboard
-        telemetry.addData("Target: ", Math.toDegrees(targetYaw));
-        telemetry.addData("Actual: ", Math.toDegrees(robotYaw));
-        telemetry.addData("Error: ", Math.toDegrees(error));
-        telemetry.addData("Yaw Acceleration", Math.abs(imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate));
-        telemetry.update();
+//        // FTC Dashboard
+//        telemetry.addData("Target: ", Math.toDegrees(targetYaw));
+//        telemetry.addData("Actual: ", Math.toDegrees(robotYaw));
+//        telemetry.addData("Error: ", Math.toDegrees(error));
+//        telemetry.addData("Yaw Acceleration", Math.abs(imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate));
+//        telemetry.update();
     }
 
     // This function normalizes the angle so it returns a value between -180° and 180° instead of 0° to 360°.

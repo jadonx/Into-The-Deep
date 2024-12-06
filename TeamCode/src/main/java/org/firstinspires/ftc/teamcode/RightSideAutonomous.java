@@ -224,9 +224,10 @@ public class RightSideAutonomous extends LinearOpMode {
         }
     }
 
+
     @Override
     public void runOpMode() throws InterruptedException {
-        Pose2d initialPose = new Pose2d(10, -62, Math.toRadians(180));
+        Pose2d initialPose = new Pose2d(9, -62, Math.toRadians(0));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
 
         ArmSlidesClaw armslidesclaw = new ArmSlidesClaw(hardwareMap);
@@ -235,110 +236,107 @@ public class RightSideAutonomous extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        TrajectoryActionBuilder path1 = drive.actionBuilder(new Pose2d(10, -62, Math.toRadians(180)))
-                .waitSeconds(0.1)
-                .setTangent(Math.toRadians(118))
-                .lineToYLinearHeading(-23.5, Math.toRadians(270))
-
-                ;
-        // đi chưa tới chamber, khi quay về phải đợi vài giây
+        while(opModeIsActive()) {
+            TrajectoryActionBuilder path1 = drive.actionBuilder(new Pose2d(9, -62, Math.toRadians(0)))
+                    .setTangent(Math.toRadians(113))
+                    .lineToYLinearHeading(-32.5, Math.toRadians(270))
+                    ;
 
 
-        TrajectoryActionBuilder path2 = path1.endTrajectory().fresh()
-                .setTangent(Math.toRadians(315))
-                .lineToYLinearHeading(-64, Math.toRadians(0))
-                ;
+            TrajectoryActionBuilder path2 = path1.endTrajectory().fresh()
+                    .setTangent(Math.toRadians(280))
+                    .lineToYLinearHeading(-40, Math.toRadians(270))
+                    //move back from the cage
 
-        TrajectoryActionBuilder path3 = path2.endTrajectory().fresh()
-                .setTangent(Math.toRadians(0))
-                .lineToX(25)
-                ;
+                    .setTangent(Math.toRadians(0))
+                    .lineToXLinearHeading(35, Math.toRadians(0))
 
-        TrajectoryActionBuilder path4 = path3.endTrajectory().fresh()
-                .setTangent(Math.toRadians(140))
-                .lineToYLinearHeading(-42, Math.toRadians(270))
-                ;
+                    .setTangent(Math.toRadians(90))
+                    .lineToYLinearHeading(-20, Math.toRadians(0))
 
-        TrajectoryActionBuilder path5 = path4.endTrajectory().fresh()
-                .setTangent(Math.toRadians(270))
-                .lineToY(-50.5)
-                .setTangent(Math.toRadians(180))
-                .lineToXLinearHeading(30, Math.toRadians(0))
-                ;
+                    .setTangent(Math.toRadians(45))
+                    .lineToYLinearHeading(-10,Math.toRadians(0))
+                    // first push point
 
-        TrajectoryActionBuilder path6 = path5.endTrajectory().fresh()
-                .setTangent(Math.toRadians(140))
-                .lineToYLinearHeading(-35, Math.toRadians(270))
-                ;
+                    .setTangent(Math.toRadians(270))
+                    .lineToYLinearHeading(-50, Math.toRadians(0))
 
-        TrajectoryActionBuilder path7 = path6.endTrajectory().fresh()
-                .setTangent(Math.toRadians(320))
-                .lineToYLinearHeading(-57.5, Math.toRadians(0))
-                ;
+                    .setTangent(Math.toRadians(90))
+                    .lineToY(-10)
 
-        TrajectoryActionBuilder path8 = path7.endTrajectory().fresh()
-                .setTangent(Math.toRadians(140))
-                .lineToYLinearHeading(-35, Math.toRadians(270))
-                ;
+                    .setTangent(Math.toRadians(0))
+                    .lineToX(57)
 
-        TrajectoryActionBuilder path9 = path8.endTrajectory().fresh()
-                .setTangent(Math.toRadians(320))
-                .lineToYLinearHeading(-57.5, Math.toRadians(0))
-                ;
+                    .setTangent(Math.toRadians(270))
+                    .lineToYLinearHeading(-50, Math.toRadians(0))
 
-        TrajectoryActionBuilder path10 = path9.endTrajectory().fresh()
-                .setTangent(Math.toRadians(140))
-                .lineToYLinearHeading(-35, Math.toRadians(270))
-                ;
+                    .setTangent(Math.toRadians(180))
+                    .lineToX(36)
+
+                    .setTangent(Math.toRadians(227))
+                    .lineToX(29)
+                    ;
+
+            TrajectoryActionBuilder path3 = path2.endTrajectory().fresh()
+                    .setTangent(Math.toRadians(0))
+                    .lineToX(40)
+                    ;
+
+            TrajectoryActionBuilder path4 = path3.endTrajectory().fresh()
+                    .setTangent(Math.toRadians(148))
+                    .lineToYLinearHeading(-32.5, Math.toRadians(270))
+                    ;
+
+            TrajectoryActionBuilder path5 = path4.endTrajectory().fresh()
+                    .setTangent(Math.toRadians(318))
+                    .lineToYLinearHeading(-57.5, Math.toRadians(0))
+                    ;
+
+            TrajectoryActionBuilder path6 = path5.endTrajectory().fresh()
+                    .setTangent(Math.toRadians(0))
+                    .lineToX(40)
+                    ;
+
+            TrajectoryActionBuilder path7 = path6.endTrajectory().fresh()
+                    .setTangent(Math.toRadians(146))
+                    .lineToYLinearHeading(-32.5, Math.toRadians(270))
+                    ;
+
+            TrajectoryActionBuilder path8 = path7.endTrajectory().fresh()
+                    .setTangent(Math.toRadians(315))
+                    .lineToYLinearHeading(-57.5, Math.toRadians(0))
+                    ;
+
+            TrajectoryActionBuilder path9 = path8.endTrajectory().fresh()
+                    .setTangent(Math.toRadians(0))
+                    .lineToX(40)
+                    ;
+
+            TrajectoryActionBuilder path10 = path9.endTrajectory().fresh()
+                    .setTangent(Math.toRadians(148))
+                    .lineToYLinearHeading(-32.5, Math.toRadians(270))
+                    ;
 
 
 
+            Actions.runBlocking(
+                    new SequentialAction(
+                            path1.build(),
+                            path2.build(),
+                            path3.build(),// place
+                            path4.build(),
+                            path5.build(),
+                            path6.build(),
+                            path7.build(),
+                            path8.build(),
+                            path9.build(),
+                            path10.build()
 
-        Actions.runBlocking(
-                new SequentialAction(
-                        path1.build(), //Place specimen
-                        armslidesclaw.placeSpecimen(),
+                    )
+            );
 
-                        path2.build(),
-                        armslidesclaw.pickupSpecimen1(),
-                        path3.build(),// place
-                        armslidesclaw.pickupSpecimen2(),
+        }
 
-                        path4.build(),
-                        armslidesclaw.placeSpecimen()
-
-
-                )
-        );
-
-//        TrajectoryActionBuilder path1 = drive.actionBuilder(new Pose2d(-10, -60, Math.toRadians(270)))
-//                .setTangent(Math.toRadians(75))
-//                .lineToY(-35);
-//
-//        TrajectoryActionBuilder path2 = path1.endTrajectory().fresh()
-//                .setTangent(Math.toRadians(270))
-//                .lineToY(-42)
-//                .setTangent(Math.toRadians(180))
-//                .lineToXLinearHeading(-56, Math.toRadians(90))
-//                .setTangent(Math.toRadians(90))
-//                .lineToY(-39);
-//
-//        TrajectoryActionBuilder path3 = path2.endTrajectory().fresh()
-//                .setTangent(Math.toRadians(275))
-//                .lineToYLinearHeading(-70, Math.toRadians(45));
-//
-//
-//
-//        Actions.runBlocking(
-//                 new SequentialAction(
-//                         path1.build(),
-//                         armslidesclaw.placeSpecimen(),
-//                         path2.build(),
-//                         armslidesclaw.pickupSample(),
-//                         path3.build(),
-//                         armslidesclaw.placeSample()
-//                 )
-//        );
 
     }
 }

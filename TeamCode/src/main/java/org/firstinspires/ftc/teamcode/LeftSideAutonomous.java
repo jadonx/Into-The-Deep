@@ -27,16 +27,16 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class LeftSideAutonomous extends LinearOpMode {
 
     public class ArmSlidesClaw {
-        private DcMotorEx arm, leftSlide, rightSlide;
+        private DcMotor arm, leftSlide, rightSlide;
         private CRServo leftClaw, rightClaw;
         private Servo claw;
 
         private ElapsedTime timer = new ElapsedTime();
 
         public ArmSlidesClaw(HardwareMap hardwareMap) {
-            arm = hardwareMap.get(DcMotorEx.class, "arm");
-            leftSlide = hardwareMap.get(DcMotorEx.class, "leftSlide");
-            rightSlide = hardwareMap.get(DcMotorEx.class, "rightSlide");
+            arm = hardwareMap.get(DcMotor.class, "arm");
+            leftSlide = hardwareMap.get(DcMotor.class, "leftSlide");
+            rightSlide = hardwareMap.get(DcMotor.class, "rightSlide");
 
             leftClaw = hardwareMap.get(CRServo.class, "leftServo");
             rightClaw = hardwareMap.get(CRServo.class, "rightServo");
@@ -51,115 +51,38 @@ public class LeftSideAutonomous extends LinearOpMode {
             rightSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
-        public class PlaceSpecimen implements Action {
-            @Override
+        public class Pinch implements Action{
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 claw.setPosition(1.0);
-
-                moveArm(1560, 0.7);
-
-                sleep(500);
-
-                moveSlides(1050, 0.8);
-
-                sleep(300);
-
-                claw.setPosition(0);
-
-                moveSlides(0, 0.8);
-
-                moveArm(0, 1);
-
                 return false;
             }
         }
-        public Action placeSpecimen() {
-            return new PlaceSpecimen();
+
+        public Action pinch(){
+            return new Pinch();
         }
 
-        public class PlaceSample implements Action {
-
-            @Override
+        public class UnPinch implements Action{
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                claw.setPosition(1.0);
-
-                moveArm(1740, 1);
-
-                sleep(1000);
-
-                moveSlides(2050, 1);
-
-                leftClaw.setPower(-1);
-                rightClaw.setPower(1);
-
-                sleep(330);
-
-                leftClaw.setPower(0);
-                rightClaw.setPower(0);
-
-                claw.setPosition(0);
-
-                timer.reset();
-
-                while (timer.milliseconds() < 600) {
-
-                }
-
-                leftClaw.setPower(1);
-                rightClaw.setPower(-1);
-
-                sleep(330);
-
-                leftClaw.setPower(0);
-                rightClaw.setPower(0);
-
-                moveSlides(0, 1);
-
-                moveArm(0, 0.6);
-
+                claw.setPosition(0.0);
                 return false;
             }
         }
-        public Action placeSample() {
-            return new PlaceSample();
-        }
 
-        public class PickupSample implements Action {
-            @Override
+        public Action unpinch(){
+            return new UnPinch();
+        }
+        public class MoveUp implements Action{
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                claw.setPosition(0);
-
-                moveArm(350, 0.5);
-
-                leftClaw.setPower(1);
-                rightClaw.setPower(-1);
-
-                sleep(600);
-
-                leftClaw.setPower(0);
-                rightClaw.setPower(0);
-
-                sleep(850);
-
-                moveArm(-50, 1);
-
-                claw.setPosition(1); //closing claw
-
-                timer.reset();
-
-                while (timer.milliseconds() < 1000) {
-
-                }
-
-                moveArm(350, 0.7);
-
+                leftClaw.setPower(-1.0);
+                rightClaw.setPower(1.0);
                 return false;
             }
         }
-        public Action pickupSample() {
-            return new PickupSample();
-        }
 
+        public Action moveUp(){
+            return new MoveUp();
+        }
         public class Claw implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -271,20 +194,25 @@ public class LeftSideAutonomous extends LinearOpMode {
                 .setTangent(Math.toRadians(285))
                 .lineToYLinearHeading(-43, Math.toRadians(45));
 
+        TrajectoryActionBuilder wait = drive.actionBuilder(new Pose2d(0, 0, Math.toRadians(0)))
+                .waitSeconds(2);
+
         waitForStart();
 
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
             Actions.runBlocking(
-                    new SequentialAction(
-                            path1.build(),
-                            armslidesclaw.placeSpecimen(),
-                            path2.build(),
-                            armslidesclaw.pickupSample(),
-                            path3.build(),
-                            armslidesclaw.placeSample()
+                    new ParallelAction(
+                            armslidesclaw.moveUp(),
+                            new SequentialAction(
+                                    armslidesclaw.pinch(),
+                                    wait.build(),
+                                    armslidesclaw.unpinch(),
+                                    wait.build()
+                            )
                     )
+
             );
         }
 
