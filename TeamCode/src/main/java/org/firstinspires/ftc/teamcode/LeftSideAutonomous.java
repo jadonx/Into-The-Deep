@@ -51,89 +51,6 @@ public class LeftSideAutonomous extends LinearOpMode {
             rightSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         }
 
-        public class Pinch implements Action{
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                claw.setPosition(1.0);
-                return false;
-            }
-        }
-
-        public Action pinch(){
-            return new Pinch();
-        }
-
-        public class UnPinch implements Action{
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                claw.setPosition(0.0);
-                return false;
-            }
-        }
-
-        public Action unpinch(){
-            return new UnPinch();
-        }
-        public class MoveUp implements Action{
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                leftClaw.setPower(-1.0);
-                rightClaw.setPower(1.0);
-                return false;
-            }
-        }
-
-        public Action moveUp(){
-            return new MoveUp();
-        }
-        public class Claw implements Action {
-            @Override
-            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                claw.setPosition(1);
-
-                timer.reset();
-
-                while (timer.milliseconds() < 1000) {
-
-                }
-
-                claw.setPosition(0);
-
-                timer.reset();
-
-                while (timer.milliseconds() < 1000) {
-
-                }
-
-                claw.setPosition(1);
-
-                while (claw.getPosition() < 0.9) {
-                    claw.setPosition(1);
-                    telemetry.addData("Claw pos: ", claw.getPosition());
-                    telemetry.update();
-                }
-
-                sleep(1000);
-
-                leftClaw.setPower(1);
-                rightClaw.setPower(-1);
-
-                sleep(600);
-
-                leftClaw.setPower(0);
-                rightClaw.setPower(0);
-
-                sleep(1000);
-
-                leftClaw.setPower(-1);
-                rightClaw.setPower(1);
-
-                sleep(600);
-
-                return false;
-            }
-        }
-        public Action claw() {
-            return new Claw();
-        }
-
         public void moveArm(int targetArm, double power) {
             arm.setTargetPosition(targetArm);
             arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -170,32 +87,54 @@ public class LeftSideAutonomous extends LinearOpMode {
 
         ArmSlidesClaw armslidesclaw = new ArmSlidesClaw(hardwareMap);
 
-        TrajectoryActionBuilder path1 = drive.actionBuilder(new Pose2d(-10, -60, Math.toRadians(270)))
-                .setTangent(Math.toRadians(75))
-                .lineToY(-35);
+        TrajectoryActionBuilder placeSpecimenPath = drive.actionBuilder(new Pose2d(-14, -62, Math.toRadians(270)))
+                .setTangent(Math.toRadians(70))
+                .lineToY(-31)
+                .waitSeconds(1); // Place specimen
 
-        TrajectoryActionBuilder path2 = path1.endTrajectory().fresh()
+        TrajectoryActionBuilder grabSample1Path = placeSpecimenPath.endTrajectory().fresh()
                 .setTangent(Math.toRadians(270))
-                .lineToY(-42)
+                .lineToY(-40)
                 .setTangent(Math.toRadians(180))
-                .lineToXLinearHeading(-52, Math.toRadians(90))
+                .lineToXLinearHeading(-47, Math.toRadians(90)) // Move to sample #1
+                .setTangent(Math.toRadians((90)))
+                .lineToY(-35)
+                .waitSeconds(1); // Grab sample #1
+
+        TrajectoryActionBuilder placeSample1Path = grabSample1Path.endTrajectory().fresh()
+                .setTangent(Math.toRadians(250))
+                .lineToYLinearHeading(-55, Math.toRadians(45)) // Place sample #1
+                .waitSeconds(1);
+
+        TrajectoryActionBuilder grabSample2Path = placeSample1Path.endTrajectory().fresh()
+                .setTangent(Math.toRadians(115))
+                .lineToYLinearHeading(-48, Math.toRadians(90)) // Move to sample #2
                 .setTangent(Math.toRadians(90))
-                .lineToY(-35);
+                .lineToY(-35) // Grab sample #2
+                .waitSeconds(1);
 
-        TrajectoryActionBuilder path3 = path2.endTrajectory().fresh()
-                .setTangent(Math.toRadians(270))
-                .lineToYLinearHeading(-60, Math.toRadians(45));
+        TrajectoryActionBuilder placeSample2Path = grabSample2Path.endTrajectory().fresh()
+                .lineToY(-48)
+                .setTangent(Math.toRadians(295))
+                .lineToYLinearHeading(-55, Math.toRadians(45)) // Place sample #2
+                .waitSeconds(1);
 
-        TrajectoryActionBuilder path4 = path3.endTrajectory().fresh()
+        TrajectoryActionBuilder grabSample3Path = placeSample2Path.endTrajectory().fresh()
                 .setTangent(Math.toRadians(90))
-                .lineToYLinearHeading(-45, Math.toRadians(90));
+                .lineToYLinearHeading(-26, Math.toRadians(180)) // Move to sample #3
+                .setTangent(Math.toRadians(180))
+                .lineToX(-60) // Grab sample #3
+                .waitSeconds(1);
 
-        TrajectoryActionBuilder path5 = path4.endTrajectory().fresh()
-                .setTangent(Math.toRadians(285))
-                .lineToYLinearHeading(-43, Math.toRadians(45));
+        TrajectoryActionBuilder placeSample3Path = grabSample3Path.endTrajectory().fresh()
+                .setTangent(Math.toRadians(280))
+                .lineToYLinearHeading(-55, Math.toRadians(45)) // Place sample #3
+                .waitSeconds(1);
 
-        TrajectoryActionBuilder wait = drive.actionBuilder(new Pose2d(0, 0, Math.toRadians(0)))
-                .waitSeconds(2);
+        TrajectoryActionBuilder parkAtSubmersiblePath = placeSample3Path.endTrajectory().fresh()
+                .setTangent(Math.toRadians(55))
+                .lineToXLinearHeading(-23, Math.toRadians(180)); // Park at submersible
+
 
         waitForStart();
 
@@ -203,16 +142,16 @@ public class LeftSideAutonomous extends LinearOpMode {
 
         while (opModeIsActive()) {
             Actions.runBlocking(
-                    new ParallelAction(
-                            armslidesclaw.moveUp(),
-                            new SequentialAction(
-                                    armslidesclaw.pinch(),
-                                    wait.build(),
-                                    armslidesclaw.unpinch(),
-                                    wait.build()
-                            )
+                    new SequentialAction(
+                            placeSpecimenPath.build(),
+                            grabSample1Path.build(),
+                            placeSample1Path.build(),
+                            grabSample2Path.build(),
+                            placeSample2Path.build(),
+                            grabSample3Path.build(),
+                            placeSample3Path.build(),
+                            parkAtSubmersiblePath.build()
                     )
-
             );
         }
 

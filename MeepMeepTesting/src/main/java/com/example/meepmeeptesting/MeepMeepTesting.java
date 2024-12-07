@@ -20,98 +20,7 @@ public class MeepMeepTesting {
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
 
-        /*
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(0, 0, 0))
-                .lineToX(30)
-                .turn(Math.toRadians(90))
-                .lineToY(30)
-                .turn(Math.toRadians(90))
-                .lineToX(0)
-                .turn(Math.toRadians(90))
-                .lineToY(0)
-                .turn(Math.toRadians(90))
-                .build());
-        */
-
-        /*
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(30, 60, Math.toRadians(270)))
-                        .strafeTo(new Vector2d(0, 35))
-                        .waitSeconds(1.5)
-                        .strafeTo(new Vector2d(0, 40))
-                        .strafeTo(new Vector2d(45, 40))
-                        .waitSeconds(1.5)
-                        .turnTo(Math.toRadians(40))
-                        .strafeTo(new Vector2d(50, 50))
-                        .waitSeconds(1.5)
-                        .turnTo(Math.toRadians(270))
-                        .strafeTo(new Vector2d(60, 40))
-                        .waitSeconds(1.5)
-                        .turnTo(Math.toRadians(5))
-                        .strafeTo(new Vector2d(50, 50))
-                        .waitSeconds(1.5)
-                        .turnTo(Math.toRadians(270))
-                        .build());
-         */
-
-        /*
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-10, -65, Math.toRadians(0)))
-                                //.splineToLinearHeading(new Pose2d(-48, -52, Math.toRadians(45)), Math.toRadians(0))
-                                .setTangent(Math.toRadians(150))
-                                .lineToYLinearHeading(-48, Math.toRadians(180+45))
-                                .splineToLinearHeading(new Pose2d(-52, -56, Math.toRadians(45)), Math.toRadians(180+45))
-                                .build());
-        */
-
-        Action duongpath = myBot.getDrive().actionBuilder(new Pose2d(10, -65, Math.toRadians(270)))
-                .waitSeconds(1)
-                .setTangent(Math.toRadians(95))
-                .lineToY(-40)
-                .waitSeconds(1)
-                .setTangent(Math.toRadians(5))
-                .lineToXLinearHeading(35, Math.toRadians(90))
-                .setTangent(Math.toRadians(90))
-                .lineToYLinearHeading(-10, Math.toRadians(90))
-                .setTangent(Math.toRadians(0))
-                .lineToXLinearHeading(48, Math.toRadians(90))
-
-                .setTangent(Math.toRadians(270))
-                .lineToYLinearHeading(-55, Math.toRadians(90))
-                .lineToYLinearHeading(-10, Math.toRadians(90))
-
-                .setTangent(Math.toRadians(0))
-                .lineToXLinearHeading(58, Math.toRadians(90))
-
-                .setTangent(Math.toRadians(270))
-                .lineToYLinearHeading(-55, Math.toRadians(90))
-                .lineToYLinearHeading(-10, Math.toRadians(90))
-
-                .setTangent(Math.toRadians(0))
-                .lineToXLinearHeading(62, Math.toRadians(90))
-
-                .setTangent(Math.toRadians(270))
-                .lineToYLinearHeading(-58, Math.toRadians(90))
-
-                .setTangent(Math.toRadians(0))
-                .lineToXLinearHeading(25, Math.toRadians(0))
-                .waitSeconds(1)
-
-                .setTangent(Math.toRadians(132))
-                .lineToYLinearHeading(-40, Math.toRadians(270))
-                .waitSeconds(1)
-                .setTangent(Math.toRadians(132))
-                .lineToXLinearHeading(25, Math.toRadians(0))
-                .waitSeconds(1)
-                .setTangent(Math.toRadians(132))
-                .lineToYLinearHeading(-40, Math.toRadians(270))
-                .waitSeconds(1)
-                .setTangent(Math.toRadians(132))
-                .lineToXLinearHeading(25, Math.toRadians(0))
-                .waitSeconds(1)
-
-                .build();
-
-
-        Action path = myBot.getDrive().actionBuilder(new Pose2d(-10, -60, Math.toRadians(270)))
+        TrajectoryActionBuilder path = myBot.getDrive().actionBuilder(new Pose2d(-10, -60, Math.toRadians(270)))
                 .setTangent(Math.toRadians(75))
                 .lineToY(-37)
                 .waitSeconds(3)
@@ -126,40 +35,44 @@ public class MeepMeepTesting {
                 .lineToYLinearHeading(-42, Math.toRadians(90))
                 .waitSeconds(1)
                 .setTangent(Math.toRadians(285))
-                .lineToYLinearHeading(-55, Math.toRadians(45))
-                .build();
+                .lineToYLinearHeading(-55, Math.toRadians(45));
 
-        TrajectoryActionBuilder path1 = myBot.getDrive().actionBuilder(new Pose2d(-10, -60, Math.toRadians(270)))
-                .setTangent(Math.toRadians(75))
-                .lineToY(-35);
-
-        TrajectoryActionBuilder path2 = path1.endTrajectory().fresh()
+        TrajectoryActionBuilder path1 = myBot.getDrive().actionBuilder(new Pose2d(-14, -62, Math.toRadians(270)))
+                .setTangent(Math.toRadians(70))
+                .lineToY(-31) // Move to submersible
+                .waitSeconds(1)
                 .setTangent(Math.toRadians(270))
-                .lineToY(-42)
+                .lineToY(-40)
                 .setTangent(Math.toRadians(180))
-                .lineToXLinearHeading(-54, Math.toRadians(90))
+                .lineToXLinearHeading(-47, Math.toRadians(90)) // Move to sample #1
+                .setTangent(Math.toRadians((90)))
+                .lineToY(-35)
+                .waitSeconds(1) // Grab sample #1
+                .setTangent(Math.toRadians(250))
+                .lineToYLinearHeading(-55, Math.toRadians(45)) // Place sample #1
+                .waitSeconds(1)
+                .setTangent(Math.toRadians(115))
+                .lineToYLinearHeading(-48, Math.toRadians(90)) // Move to sample #2
                 .setTangent(Math.toRadians(90))
-                .lineToY(-35);
-
-        TrajectoryActionBuilder path3 = path2.endTrajectory().fresh()
-                .setTangent(Math.toRadians(270))
-                .lineToYLinearHeading(-62, Math.toRadians(45));
-
-        TrajectoryActionBuilder path4 = path3.endTrajectory().fresh()
-                .setTangent(Math.toRadians(105))
-                .lineToYLinearHeading(-35, Math.toRadians(90));
-
-        TrajectoryActionBuilder path5 = path4.endTrajectory().fresh()
-                .setTangent(Math.toRadians(285))
-                .lineToYLinearHeading(-62, Math.toRadians(45));
+                .lineToY(-35) // Grab sample #2
+                .waitSeconds(1)
+                .lineToY(-48)
+                .setTangent(Math.toRadians(295))
+                .lineToYLinearHeading(-55, Math.toRadians(45)) // Place sample #2
+                .waitSeconds(1)
+                .setTangent(Math.toRadians(90))
+                .lineToYLinearHeading(-26, Math.toRadians(180)) // Move to sample #3
+                .setTangent(Math.toRadians(180))
+                .lineToX(-60) // Grab sample #3
+                .waitSeconds(1)
+                .setTangent(Math.toRadians(280))
+                .lineToYLinearHeading(-55, Math.toRadians(45)) // Place sample #3
+                .setTangent(Math.toRadians(55))
+                .lineToXLinearHeading(-23, Math.toRadians(180)); // Park at submersible
 
         myBot.runAction(
                 new SequentialAction(
-                        path1.build(),
-                        path2.build(),
-                        path3.build(),
-                        path4.build(),
-                        path5.build()
+                        path1.build()
                 )
         );
 
