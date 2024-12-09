@@ -10,34 +10,28 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "Claw Mover Tester")
 public class ClawMovement extends OpMode {
-    public CRServo left, right;
-    public Servo claw;
+    public Servo left, right, claw;
     public ElapsedTime runtime;
 
     @Override
     public void init(){
-        left = hardwareMap.get(CRServo.class, "leftServo");
-        right = hardwareMap.get(CRServo.class, "rightServo");
+        left = hardwareMap.get(Servo.class, "leftServo");
+        right = hardwareMap.get(Servo.class, "rightServo");
         claw = hardwareMap.get(Servo.class, "clawServo");
     }
 
     @Override
     public void loop(){
         if(gamepad1.a) {
-            left.setPower(1.0);
-            right.setPower(-1.0);
+            left.setPosition(1);
         }  else if (gamepad1.y) {
-            left.setPower(-1.0);
-            right.setPower(1.0);
-        } else {
-            left.setPower(0.0);
-            right.setPower(0.0);
+            left.setPosition(-1);
+        } else if (gamepad1.x) {
+            right.setPosition(1);
+        } else if (gamepad1.b) {
+            right.setPosition(-1);
         }
 
-        if (gamepad1.x) {
-            claw.setPosition(1);
-        } else if (gamepad1.b) {
-            claw.setPosition(0);
-        }
+        telemetry.update();
     }
 }
