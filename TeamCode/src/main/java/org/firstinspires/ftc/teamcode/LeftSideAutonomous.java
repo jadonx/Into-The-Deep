@@ -108,7 +108,7 @@ public class LeftSideAutonomous extends LinearOpMode {
             private boolean runSlides = false;
 
             private int targetArm = 1600;
-            private int targetSlides = 1000;
+            private int targetSlides = 870;
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
@@ -127,12 +127,12 @@ public class LeftSideAutonomous extends LinearOpMode {
                     timerStarted = true;
                 }
 
-                if (timerStarted && timer.seconds() > 3) {
+                if (timerStarted && timer.seconds() > 1) {
                     runSlides = true;
                 }
 
                 if (runSlides) {
-                    moveSlides(1100, 1);
+                    moveSlides(950, 1);
                 }
 
 //                telemetry.addData("Arm ", arm.getCurrentPosition());
@@ -177,7 +177,7 @@ public class LeftSideAutonomous extends LinearOpMode {
         ArmSlidesClaw armslidesclaw = new ArmSlidesClaw(hardwareMap);
 
         TrajectoryActionBuilder placeSpecimenPath = drive.actionBuilder(initialPose)
-                .waitSeconds(2)
+                .waitSeconds(1)
                 .setTangent(Math.toRadians(70))
                 .lineToY(-31)
                 .waitSeconds(1); // Place specimen
@@ -231,27 +231,27 @@ public class LeftSideAutonomous extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-//        Actions.runBlocking(
-//                new SequentialAction(
-//                        new ParallelAction(
-//                                placeSpecimenPath.build(),
-//                                armslidesclaw.placeSpecimen()
-//                        ),
-//                        grabSample1Path.build(),
-//                        placeSample1Path.build(),
-//                        grabSample2Path.build(),
-//                        placeSample2Path.build(),
-//                        grabSample3Path.build(),
-//                        placeSample3Path.build(),
-//                        parkAtSubmersiblePath.build()
-//                )
-//        );
-
-
         Actions.runBlocking(
                 new SequentialAction(
-                        armslidesclaw.actionCloseClaw()
+                        new ParallelAction(
+                                placeSpecimenPath.build(),
+                                armslidesclaw.placeSpecimen()
+                        ),
+                        grabSample1Path.build(),
+                        placeSample1Path.build(),
+                        grabSample2Path.build(),
+                        placeSample2Path.build(),
+                        grabSample3Path.build(),
+                        placeSample3Path.build(),
+                        parkAtSubmersiblePath.build()
                 )
         );
+
+
+//        Actions.runBlocking(
+//                new SequentialAction(
+//                        armslidesclaw.actionCloseClaw()
+//                )
+//        );
     }
 }
