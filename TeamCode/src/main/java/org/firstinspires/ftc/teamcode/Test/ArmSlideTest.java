@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp (name = "ArmSlideTest")
 public class ArmSlideTest extends OpMode {
@@ -16,6 +17,7 @@ public class ArmSlideTest extends OpMode {
 
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        arm.setDirection(DcMotorSimple.Direction.REVERSE);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         leftSlide = hardwareMap.get(DcMotorEx .class, "leftSlide");

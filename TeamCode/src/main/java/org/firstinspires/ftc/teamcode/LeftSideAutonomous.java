@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -48,6 +49,10 @@ public class LeftSideAutonomous extends LinearOpMode {
             arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             leftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rightSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            arm.setDirection(DcMotor.Direction.REVERSE);
+            leftSlide.setDirection(DcMotor.Direction.FORWARD);
+            rightSlide.setDirection(DcMotor.Direction.REVERSE);
         }
 
         public void moveArm(int targetArm, double power) {
@@ -57,7 +62,7 @@ public class LeftSideAutonomous extends LinearOpMode {
         }
 
         public void moveSlides(int targetSlides, double power) {
-            leftSlide.setTargetPosition(-targetSlides);
+            leftSlide.setTargetPosition(targetSlides);
             rightSlide.setTargetPosition(targetSlides);
 
             leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -67,37 +72,100 @@ public class LeftSideAutonomous extends LinearOpMode {
             rightSlide.setPower(power);
         }
 
-        public void waitSeconds(int seconds) {
-            timer.reset();
-
-            while (timer.seconds() < seconds) {
-
-            }
+        public void closeClaw() {
+            claw.setPosition(1);
         }
 
-        public void moveWrist(boolean moveUp, double seconds) {
+        public void openClaw() {
+            claw.setPosition(0);
+        }
 
+        public void wristDown() {
+            leftClaw.setPosition(0.256);
+            rightClaw.setPosition(0.636);
+        }
+
+        public void wristUp() {
+            leftClaw.setPosition(0.612);
+            rightClaw.setPosition(0.266);
+        }
+
+        public void wristPlaceSample() {
+            leftClaw.setPosition(0.524);
+            rightClaw.setPosition(0.35);
+        }
+
+        public boolean slidesReachedTarget(int targetSlides, int threshold) {
+            return Math.abs(leftSlide.getCurrentPosition() - targetSlides) < threshold && Math.abs(rightSlide.getCurrentPosition() - targetSlides) < threshold;
+        }
+
+        public boolean armReachedTarget(int targetArm, int threshold) {
+            return Math.abs(arm.getCurrentPosition() - targetArm) < threshold;
         }
 
         public class PlaceSpecimen implements Action {
+            private boolean timerStarted = false;
+            private boolean runSlides = false;
+
+            private int targetArm = 1600;
+            private int targetSlides = 1000;
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket) {
-                moveArm(-1270, 0.8);
+                wristUp();
+                closeClaw();
 
-                if (Math.abs(arm.getCurrentPosition() + 1270) < 40) {
-                    moveSlides(790, 0.8);
+                moveArm(targetArm, 1);
+
+                if (armReachedTarget(targetArm, 20)) {
+                    moveSlides(targetSlides, 1);
+                    telemetry.addData("moving slides", null);
                 }
 
-                if (Math.abs(arm.getCurrentPosition() + 1270) < 40 && (Math.abs(leftSlide.getCurrentPosition() + 790) > 20) && (Math.abs(rightSlide.getCurrentPosition() - 790) > 20)) {
-                    return false;
+                if (slidesReachedTarget(targetSlides, 20) && !timerStarted) {
+                    timer.reset();
+                    timerStarted = true;
                 }
 
-                return true;
+                if (timerStarted && timer.seconds() > 3) {
+                    runSlides = true;
+                }
+
+                if (runSlides) {
+                    moveSlides(1100, 1);
+                }
+
+//                telemetry.addData("Arm ", arm.getCurrentPosition());
+//                telemetry.addData("Arm target ", arm.getTargetPosition());
+//                telemetry.addData("Left slide ", leftSlide.getCurrentPosition());
+//                telemetry.addData("Right slide ", rightSlide.getCurrentPosition());
+//                telemetry.addData("Left slide target ", leftSlide.getTargetPosition());
+//                telemetry.addData("Right slide target ", rightSlide.getTargetPosition());
+//                telemetry.addData("Timer ", timer.seconds());
+//                telemetry.addData("Timer stared ", timerStarted);
+//                telemetry.addData("Run loop ", runLoop);
+//                telemetry.update();
+
+                return !slidesReachedTarget(1100, 20);
             }
         }
         public Action placeSpecimen() {
             return new PlaceSpecimen();
+        }
+
+        public class CloseClaw implements Action {
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                closeClaw();
+
+                timer.reset();
+
+                return timer.seconds() < 5;
+            }
+        }
+        public Action actionCloseClaw() {
+            return new CloseClaw();
         }
     }
 
@@ -109,6 +177,7 @@ public class LeftSideAutonomous extends LinearOpMode {
         ArmSlidesClaw armslidesclaw = new ArmSlidesClaw(hardwareMap);
 
         TrajectoryActionBuilder placeSpecimenPath = drive.actionBuilder(initialPose)
+                .waitSeconds(2)
                 .setTangent(Math.toRadians(70))
                 .lineToY(-31)
                 .waitSeconds(1); // Place specimen
@@ -143,7 +212,7 @@ public class LeftSideAutonomous extends LinearOpMode {
                 .setTangent(Math.toRadians(90))
                 .lineToYLinearHeading(-26, Math.toRadians(180)) // Move to sample #3
                 .setTangent(Math.toRadians(180))
-                .lineToX(-58) // Grab sample #3
+                .lineToX(-61) // Grab sample #3
                 .waitSeconds(1);
 
         TrajectoryActionBuilder placeSample3Path = grabSample3Path.endTrajectory().fresh()
@@ -162,30 +231,27 @@ public class LeftSideAutonomous extends LinearOpMode {
 
         if (isStopRequested()) return;
 
+//        Actions.runBlocking(
+//                new SequentialAction(
+//                        new ParallelAction(
+//                                placeSpecimenPath.build(),
+//                                armslidesclaw.placeSpecimen()
+//                        ),
+//                        grabSample1Path.build(),
+//                        placeSample1Path.build(),
+//                        grabSample2Path.build(),
+//                        placeSample2Path.build(),
+//                        grabSample3Path.build(),
+//                        placeSample3Path.build(),
+//                        parkAtSubmersiblePath.build()
+//                )
+//        );
+
+
         Actions.runBlocking(
                 new SequentialAction(
-                        new ParallelAction(
-                                placeSpecimenPath.build(),
-                                armslidesclaw.placeSpecimen()
-                        ),
-                        grabSample1Path.build(),
-                        placeSample1Path.build(),
-                        grabSample2Path.build(),
-                        placeSample2Path.build(),
-                        grabSample3Path.build(),
-                        placeSample3Path.build(),
-                        parkAtSubmersiblePath.build()
+                        armslidesclaw.actionCloseClaw()
                 )
         );
-
-
-
-        /*
-        Actions.runBlocking(
-                new SequentialAction(
-                        armslidesclaw.claw()
-                )
-        );
-         */
     }
 }

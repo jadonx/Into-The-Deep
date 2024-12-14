@@ -102,7 +102,7 @@ public class MeepMeepTesting {
                 .setTangent(Math.toRadians(90))
                 .lineToYLinearHeading(-26, Math.toRadians(180)) // Move to sample #3
                 .setTangent(Math.toRadians(180))
-                .lineToX(-58) // Grab sample #3
+                .lineToX(-61) // Grab sample #3
                 .waitSeconds(1);
 
         TrajectoryActionBuilder placeSample3Path = grabSample3Path.endTrajectory().fresh()

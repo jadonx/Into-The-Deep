@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp (name = "Encoder Test")
 public class MotorEncoders extends OpMode {
@@ -25,6 +26,10 @@ public class MotorEncoders extends OpMode {
         rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightSlide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        arm.setDirection(DcMotor.Direction.REVERSE);
+        leftSlide.setDirection(DcMotor.Direction.FORWARD);
+        rightSlide.setDirection(DcMotor.Direction.REVERSE);
     }
 
     @Override
