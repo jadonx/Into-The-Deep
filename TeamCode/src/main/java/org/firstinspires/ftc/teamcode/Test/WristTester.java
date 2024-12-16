@@ -59,6 +59,9 @@ public class WristTester extends OpMode {
         } else if (gamepad1.x) {
             leftPos = 0.524;
             rightPos = 0.35;
+        } else if (gamepad1.y) {
+            leftPos = 0.482;
+            rightPos = 0.406;
         }
 
         if (leftPos < -1) {
