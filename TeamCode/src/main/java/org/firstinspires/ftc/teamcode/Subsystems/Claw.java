@@ -6,16 +6,22 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Claw {
     public Servo claw1, left, right;
     double leftPos, rightPos;
+    public ElapsedTime timer = new ElapsedTime();
+
+
 
 
     public Claw(HardwareMap hw){
         left = hw.get(Servo.class, "leftServo");
         right = hw.get(Servo.class, "rightServo");
         claw1 = hw.get(Servo.class, "clawServo");
+        leftPos = -1;
+        rightPos = 0.546;
 
 
     }
@@ -24,7 +30,7 @@ public class Claw {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             claw1.setPosition(0.0);
-            return false;
+            return claw1.getPosition()>0.05;
         }
     }
 
@@ -36,7 +42,7 @@ public class Claw {
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket) {
             claw1.setPosition(1.0);
-            return false;
+            return claw1.getPosition()<0.95;
         }
     }
 
@@ -47,8 +53,9 @@ public class Claw {
     public class MoveDown implements Action{
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket){
-            leftPos += 0.5;
-            rightPos += 0.05;
+            leftPos = -1;
+            rightPos = 0.546;
+
             left.setPosition(leftPos);
             right.setPosition(rightPos);
             return false;
@@ -59,14 +66,35 @@ public class Claw {
         return new MoveDown();
     }
 
-    public class MoveUp implements Action{
-        @Override
+    public class Hold implements Action{
         public boolean run(@NonNull TelemetryPacket telemetryPacket){
-            leftPos =0.0;
-            rightPos =0.0;
             left.setPosition(leftPos);
             right.setPosition(rightPos);
+            //claw1.setPosition(1.0);
             return false;
+        }
+
+    }
+
+    public Action hold(){
+        return new Hold();
+    }
+
+    public class MoveUp implements Action{
+        private boolean timerStarted = false;
+        @Override
+        public boolean run(@NonNull TelemetryPacket telemetryPacket){
+            leftPos =0.578;
+            rightPos =-0.166;
+            left.setPosition(leftPos);
+            right.setPosition(rightPos);
+
+            if (!timerStarted) {
+                timerStarted = true;
+                timer.reset();
+            }
+
+            return !timerStarted || !(timer.seconds() > 1);
         }
     }
 

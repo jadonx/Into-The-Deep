@@ -29,8 +29,8 @@ public class WristTester extends OpMode {
         right = hardwareMap.get(Servo.class, "rightServo");
         claw = hardwareMap.get(Servo.class, "clawServo");
 
-        leftPos = 0.256;
-        rightPos = 0.636;
+        leftPos = 0;
+        rightPos = 0;
 
         left.setPosition(leftPos);
         right.setPosition(rightPos);
@@ -48,20 +48,6 @@ public class WristTester extends OpMode {
             rightPos += 0.002;
         } else if (-gamepad1.right_stick_y < -0.1) {
             rightPos -= 0.002;
-        }
-
-        if (gamepad1.a) {
-            leftPos = 0.256;
-            rightPos = 0.636;
-        } else if (gamepad1.b) {
-            leftPos = 0.612;
-            rightPos = 0.266;
-        } else if (gamepad1.x) {
-            leftPos = 0.524;
-            rightPos = 0.35;
-        } else if (gamepad1.y) {
-            leftPos = 0.482;
-            rightPos = 0.406;
         }
 
         if (leftPos < -1) {

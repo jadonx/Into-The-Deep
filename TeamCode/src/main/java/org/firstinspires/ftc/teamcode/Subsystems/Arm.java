@@ -32,10 +32,10 @@ public class Arm {
         private boolean timerStarted = false;
         @Override
         public boolean run(@NonNull TelemetryPacket telemetryPacket){
-            targetPosition = 1300;
-            arm.setTargetPosition(1300);
+            targetPosition = 1550;
+            arm.setTargetPosition(1550);
             arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            arm.setPower(0.5);
+            arm.setPower(0.3);
             Telem.addData("Arm", arm.getCurrentPosition());
             Telem.update();
             if(Math.abs(arm.getTargetPosition()-arm.getCurrentPosition())<5){
@@ -74,6 +74,8 @@ public class Arm {
             arm.setTargetPosition(0);
             arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             arm.setPower(0.5);
+            Telem.addData("Arm", arm.getCurrentPosition());
+            Telem.update();
             return Math.abs(arm.getTargetPosition()-arm.getCurrentPosition())>10;
         }
     }

@@ -84,40 +84,33 @@ public class MeepMeepTesting {
 
         TrajectoryActionBuilder placeSample = myBot.getDrive().actionBuilder(new Pose2d(-37, -62, Math.toRadians(0)))
                 .setTangent(Math.toRadians(90))
-                .lineToY(-55)
+                .lineToY(-51)
                 .setTangent(Math.toRadians(180))
-                .lineToXLinearHeading(-55, Math.toRadians(45))
-                .waitSeconds(3);
+                .lineToXLinearHeading(-53, Math.toRadians(45));
 
         TrajectoryActionBuilder grabSample1 = placeSample.endTrajectory().fresh()
-                .setTangent(Math.toRadians(50))
-                .lineToXLinearHeading(-48, Math.toRadians(90))
-                .waitSeconds(2);
+                .setTangent(Math.toRadians(45))
+                .lineToXLinearHeading(-48, Math.toRadians(90));
 
         TrajectoryActionBuilder placeSample1 = grabSample1.endTrajectory().fresh()
-                .setTangent(Math.toRadians(230))
-                .lineToXLinearHeading(-55, Math.toRadians(45))
-                .waitSeconds(3);
+                .setTangent(Math.toRadians(225))
+                .lineToXLinearHeading(-53, Math.toRadians(45));
 
         TrajectoryActionBuilder grabSample2 = placeSample1.endTrajectory().fresh()
-                .setTangent(Math.toRadians(110))
-                .lineToXLinearHeading(-58, Math.toRadians(90))
-                .waitSeconds(2);
+                .setTangent(Math.toRadians(135))
+                .lineToXLinearHeading(-58, Math.toRadians(90));
 
         TrajectoryActionBuilder placeSample2 = grabSample2.endTrajectory().fresh()
-                .setTangent(Math.toRadians(290))
-                .lineToXLinearHeading(-55, Math.toRadians(45))
-                .waitSeconds(3);
+                .setTangent(Math.toRadians(315))
+                .lineToXLinearHeading(-53, Math.toRadians(45));
 
         TrajectoryActionBuilder grabSample3 = placeSample2.endTrajectory().fresh()
                 .setTangent(Math.toRadians(80))
-                .lineToYLinearHeading(-26, Math.toRadians(180))
-                .waitSeconds(2);
+                .lineToYLinearHeading(-26, Math.toRadians(180));
 
         TrajectoryActionBuilder placeSample3 = grabSample3.endTrajectory().fresh()
                 .setTangent(Math.toRadians(260))
-                .lineToYLinearHeading(-55, Math.toRadians(45))
-                .waitSeconds(3);
+                .lineToYLinearHeading(-51, Math.toRadians(45));
 
         TrajectoryActionBuilder parkAtSubmersible = placeSample3.endTrajectory().fresh()
                 .setTangent(Math.toRadians(70))

@@ -47,17 +47,25 @@ public class MainDrive extends LinearOpMode {
 
         waitForStart();
         while (opModeIsActive()) {
-            RunningCommand = (gamepad2.a) ? robot.placeSample(): robot.holdPosition();
-            RunningCommand = (gamepad2.b) ? robot.resetPosition(): robot.holdPosition();
-            /*
+            //RunningCommand = (gamepad2.a) ? robot.placeSample(): robot.holdPosition();
+            //RunningCommand = (gamepad2.b) ? robot.resetPosition(): robot.holdPosition();
+
 
             if(gamepad2.a) //move up sample
                 RunningCommand = robot.placeSample();
             else if(gamepad2.b) //move down to drive
                 RunningCommand = robot.resetPosition();
+            else if(gamepad2.x)
+                RunningCommand = robot.moveSub();
+            else if(gamepad2.y)
+                RunningCommand = robot.score();
             else
-                RunningCommand = robot.
-*/
+                RunningCommand = robot.holdPosition();
+
+
+
+            robot.drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x, gamepad1.x);
+
             Actions.runBlocking(
                     RunningCommand
 
