@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Test;
+package org.firstinspires.ftc.teamcode.testers;
 
 import static java.lang.Thread.sleep;
 
@@ -7,8 +7,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -62,11 +60,34 @@ public class WristTester extends OpMode {
             rightPos = 1;
         }
 
+        if (gamepad1.a) {
+            wristDown90();
+        } else if (gamepad1.b) {
+            wristDown();
+        } else if (gamepad1.y) {
+            wristPlaceSample();
+        }
+
         left.setPosition(leftPos);
         right.setPosition(rightPos);
 
         telemetry.addData("Left pos ", leftPos);
         telemetry.addData("Right pos ", rightPos);
         telemetry.update();
+    }
+
+    public void wristDown() {
+        leftPos = 0.6;
+        rightPos = 0.4;
+    }
+
+    public void wristDown90() {
+        leftPos = 0.9;
+        rightPos = 0.55;
+    }
+
+    public void wristPlaceSample() {
+        leftPos = 0.362;
+        rightPos = 0.65;
     }
 }

@@ -20,73 +20,15 @@ public class MeepMeepTesting {
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
 
-//        TrajectoryActionBuilder placeSpecimenPath = myBot.getDrive().actionBuilder(new Pose2d(-14, -62, Math.toRadians(270)))
-//                .setTangent(Math.toRadians(70))
-//                .lineToY(-31)
-//                .waitSeconds(1); // Place specimen
-//
-//        TrajectoryActionBuilder grabSample1Path = placeSpecimenPath.endTrajectory().fresh()
-//                .setTangent(Math.toRadians(270))
-//                .lineToY(-40)
+//        TrajectoryActionBuilder placeSample = myBot.getDrive().actionBuilder(new Pose2d(-37, -62, Math.toRadians(0)))
+//                .setTangent(Math.toRadians(90))
+//                .lineToY(-57)
 //                .setTangent(Math.toRadians(180))
-//                .lineToXLinearHeading(-47, Math.toRadians(90)) // Move to sample #1
-//                .setTangent(Math.toRadians(90))
-//                .lineToY(-33)
-//                .waitSeconds(1); // Grab sample #1
-//
-//        TrajectoryActionBuilder placeSample1Path = grabSample1Path.endTrajectory().fresh()
-//                .setTangent(Math.toRadians(250))
-//                .lineToYLinearHeading(-55, Math.toRadians(45)) // Place sample #1
-//                .waitSeconds(1);
-//
-//        TrajectoryActionBuilder grabSample2Path = placeSample1Path.endTrajectory().fresh()
-//                .setTangent(Math.toRadians(100))
-//                .lineToYLinearHeading(-40, Math.toRadians(90)) // Grab sample #2
-//                .setTangent(Math.toRadians(90))
-//                .lineToY(-33)
-//                .waitSeconds(1);
-//
-//        TrajectoryActionBuilder placeSample2Path = grabSample2Path.endTrajectory().fresh()
-//                .setTangent(Math.toRadians(280))
-//                .lineToYLinearHeading(-55, Math.toRadians(45)) // Place sample #2
-//                .waitSeconds(1);
-//
-//        TrajectoryActionBuilder grabSample3Path = placeSample2Path.endTrajectory().fresh()
-//                .setTangent(Math.toRadians(90))
-//                .lineToYLinearHeading(-26, Math.toRadians(180)) // Move to sample #3
-//                .setTangent(Math.toRadians(180))
-//                .lineToX(-61) // Grab sample #3
-//                .waitSeconds(1);
-//
-//        TrajectoryActionBuilder placeSample3Path = grabSample3Path.endTrajectory().fresh()
-//                .setTangent(Math.toRadians(280))
-//                .lineToYLinearHeading(-55, Math.toRadians(45)) // Place sample #3
-//                .waitSeconds(1);
-//
-//        TrajectoryActionBuilder parkAtSubmersiblePath = placeSample3Path.endTrajectory().fresh()
-//                .setTangent(Math.toRadians(80))
-//                .lineToYLinearHeading(-10, Math.toRadians(180))
-//                .setTangent(Math.toRadians(0))
-//                .lineToX(-23);
-//
-//        myBot.runAction(
-//                new SequentialAction(
-//                        placeSpecimenPath.build(),
-//                        grabSample1Path.build(),
-//                        placeSample1Path.build(),
-//                        grabSample2Path.build(),
-//                        placeSample2Path.build(),
-//                        grabSample3Path.build(),
-//                        placeSample3Path.build(),
-//                        parkAtSubmersiblePath.build()
-//                )
-//        );
+//                .lineToXLinearHeading(-57, Math.toRadians(45));
 
         TrajectoryActionBuilder placeSample = myBot.getDrive().actionBuilder(new Pose2d(-37, -62, Math.toRadians(0)))
-                .setTangent(Math.toRadians(90))
-                .lineToY(-51)
-                .setTangent(Math.toRadians(180))
-                .lineToXLinearHeading(-53, Math.toRadians(45));
+                .setTangent(Math.toRadians(100))
+                .splineToLinearHeading(new Pose2d(-57, -57, Math.toRadians(45)), Math.toRadians(180));
 
         TrajectoryActionBuilder grabSample1 = placeSample.endTrajectory().fresh()
                 .setTangent(Math.toRadians(45))
@@ -94,29 +36,27 @@ public class MeepMeepTesting {
 
         TrajectoryActionBuilder placeSample1 = grabSample1.endTrajectory().fresh()
                 .setTangent(Math.toRadians(225))
-                .lineToXLinearHeading(-53, Math.toRadians(45));
+                .lineToXLinearHeading(-57, Math.toRadians(45));
 
         TrajectoryActionBuilder grabSample2 = placeSample1.endTrajectory().fresh()
-                .setTangent(Math.toRadians(135))
+                .setTangent(Math.toRadians(96))
                 .lineToXLinearHeading(-58, Math.toRadians(90));
 
         TrajectoryActionBuilder placeSample2 = grabSample2.endTrajectory().fresh()
-                .setTangent(Math.toRadians(315))
-                .lineToXLinearHeading(-53, Math.toRadians(45));
+                .setTangent(Math.toRadians(276))
+                .lineToXLinearHeading(-57, Math.toRadians(45));
 
         TrajectoryActionBuilder grabSample3 = placeSample2.endTrajectory().fresh()
-                .setTangent(Math.toRadians(80))
-                .lineToYLinearHeading(-26, Math.toRadians(180));
+                .setTangent(Math.toRadians(81))
+                .lineToXLinearHeading(-52, Math.toRadians(180));
 
         TrajectoryActionBuilder placeSample3 = grabSample3.endTrajectory().fresh()
-                .setTangent(Math.toRadians(260))
-                .lineToYLinearHeading(-51, Math.toRadians(45));
+                .setTangent(Math.toRadians(261))
+                .lineToXLinearHeading(-57, Math.toRadians(45));
 
         TrajectoryActionBuilder parkAtSubmersible = placeSample3.endTrajectory().fresh()
-                .setTangent(Math.toRadians(70))
-                .lineToYLinearHeading(-12, Math.toRadians(180))
-                .setTangent(Math.toRadians(0))
-                .lineToX(-23);
+                .setTangent(Math.toRadians(90))
+                .splineToLinearHeading(new Pose2d(-20, -10, Math.toRadians(180)), Math.toRadians(0));
 
         myBot.runAction(
                 new SequentialAction(
